@@ -1,12 +1,12 @@
 services:
   app:
     build:
-      context: ""
+      context: .
       dockerfile: Dockerfile
-      #args:
-        #USER_ID: '${WWWUSER:-1000}'
-        #GROUP_ID: '${WWWGROUP:-1000}'
-        #USER: '${USER:-whoami}'
+      args:
+        USER_ID: '${WWWUSER:-1000}'
+        GROUP_ID: '${WWWGROUP:-1000}'
+        USER: '${USER:-whoami}'
     container_name: expennies-app
     restart: always
     working_dir: /var/www/
@@ -33,3 +33,4 @@ services:
       MYSQL_ROOT_PASSWORD: root
     ports:
       - "3306:3306"
+    user: ${WWWUSER:-1000}:${WWWGROUP:-1000}
