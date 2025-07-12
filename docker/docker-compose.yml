@@ -3,17 +3,20 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      args:
-        USER_ID: '${WWWUSER:-1000}'
-        GROUP_ID: '${WWWGROUP:-1000}'
-        USER: '${USER:-whoami}'
+#      args:
+#        USER_ID: '${WWWUSER:-1000}'
+#        GROUP_ID: '${WWWGROUP:-1000}'
+#        USER: '${USER:-whoami}'
     container_name: expennies-app
     restart: always
     working_dir: /var/www/
+    ports:
+      - "9003:9003"
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:
       - ../:/var/www
+      - ./local.ini:/usr/local/etc/php/conf.d/local.ini
   nginx:
     image: nginx:1.29-alpine
     container_name: expennies-nginx
@@ -33,4 +36,4 @@ services:
       MYSQL_ROOT_PASSWORD: root
     ports:
       - "3306:3306"
-    user: ${WWWUSER:-1000}:${WWWGROUP:-1000}
+#    user: ${WWWUSER:-1000}:${WWWGROUP:-1000}
