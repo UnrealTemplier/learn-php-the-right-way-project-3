@@ -6,14 +6,19 @@ namespace App\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\GeneratedValue;
+use Doctrine\ORM\Mapping\HasLifecycleCallbacks;
 use Doctrine\ORM\Mapping\Id;
 use Doctrine\ORM\Mapping\OneToMany;
+use Doctrine\ORM\Mapping\PrePersist;
+use Doctrine\ORM\Mapping\PreUpdate;
 use Doctrine\ORM\Mapping\Table;
 
 #[Entity, Table('users')]
+#[HasLifecycleCallbacks]
 class User
 {
     #[Id, Column(options: ['unsigned' => true]), GeneratedValue]
@@ -44,6 +49,16 @@ class User
     {
         $this->transactions = new ArrayCollection();
         $this->categories = new ArrayCollection();
+    }
+
+    #[PrePersist, PreUpdate]
+    public function updateTimestamps(LifecycleEventArgs $args): void
+    {
+        if (!isset($this->createdAt)) {
+            $this->createdAt = new \DateTime();
+        }
+
+        $this->updatedAt = new \DateTime();
     }
 
     public function getId(): int
