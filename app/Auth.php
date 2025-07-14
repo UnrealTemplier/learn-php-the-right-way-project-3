@@ -40,7 +40,7 @@ class Auth implements Contracts\AuthInterface
     {
         $user = $this->userProviderService->getByCredentials($credentials);
 
-        if (!$user || !password_verify($credentials['password'], $user->getPassword())) {
+        if (!$user || !$this->check_credentials($user, $credentials)) {
             return false;
         }
 
@@ -56,5 +56,10 @@ class Auth implements Contracts\AuthInterface
     {
         unset($_SESSION['user']);
         $this->user = null;
+    }
+
+    private function check_credentials(UserInterface $user, array $credentials): bool
+    {
+        return password_verify($credentials['password'], $user->getPassword());
     }
 }
