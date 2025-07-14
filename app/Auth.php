@@ -53,4 +53,10 @@ class Auth implements Contracts\AuthInterface
 
         return true;
     }
+
+    public function logout(): void
+    {
+        unset($_SESSION['user']);
+        $this->user = null;
+    }
 }

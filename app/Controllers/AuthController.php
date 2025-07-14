@@ -42,6 +42,13 @@ class AuthController
         return $response->withStatus(302)->withHeader('Location', '/');
     }
 
+    public function logout(Request $request, Response $response): Response
+    {
+        $this->auth->logout();
+
+        return $response->withStatus(302)->withHeader('Location', '/login');
+    }
+
     public function registerView(Request $request, Response $response): Response
     {
         return $this->twig->render($response, 'auth/register.twig');
