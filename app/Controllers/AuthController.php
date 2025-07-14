@@ -21,6 +21,32 @@ class AuthController
         return $this->twig->render($response, 'auth/login.twig');
     }
 
+    public function login(Request $request, Response $response): Response
+    {
+        $data = $request->getParsedBody();
+
+        $v = new Validator($data);
+        $v->rule('required', ['email', 'password']);
+        $v->rule('email', 'email');
+
+        $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $data['email']]);
+
+        if (!$user || !password_verify($data['password'], $user->getPassword())) {
+            throw new ValidationException(
+                [
+                    'email'    => ['Email or password are incorrect'],
+                    'password' => ['Email or password are incorrect'],
+                ],
+            );
+        }
+
+        session_regenerate_id();
+
+        $_SESSION['user'] = $user->getId();
+
+        return $response->withStatus(302)->withHeader('Location', '/');
+    }
+
     public function registerView(Request $request, Response $response): Response
     {
         return $this->twig->render($response, 'auth/register.twig');
