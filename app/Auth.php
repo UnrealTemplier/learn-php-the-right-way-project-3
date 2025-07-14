@@ -6,6 +6,7 @@ namespace App;
 
 use App\Contracts\UserInterface;
 use App\Entity\User;
+use App\Exception\ValidationException;
 use Doctrine\ORM\EntityManager;
 
 class Auth implements Contracts\AuthInterface
@@ -35,5 +36,21 @@ class Auth implements Contracts\AuthInterface
         $this->user = $user;
 
         return $this->user;
+    }
+
+    public function attemptLogin(array $credentials): bool
+    {
+        $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $credentials['email']]);
+
+        if (!$user || !password_verify($credentials['password'], $user->getPassword())) {
+            return false;
+        }
+
+        session_regenerate_id();
+
+        $this->user = $user;
+        $_SESSION['user'] = $this->user->getId();
+
+        return true;
     }
 }

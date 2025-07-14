@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use App\Contracts\AuthInterface;
 use App\Entity\User;
 use App\Exception\ValidationException;
 use Doctrine\ORM\EntityManager;
@@ -14,7 +15,11 @@ use Valitron\Validator;
 
 class AuthController
 {
-    public function __construct(private readonly Twig $twig, private readonly EntityManager $entityManager) {}
+    public function __construct(
+        private readonly Twig          $twig,
+        private readonly EntityManager $entityManager,
+        private readonly AuthInterface $auth,
+    ) {}
 
     public function loginView(Request $request, Response $response): Response
     {
@@ -23,26 +28,16 @@ class AuthController
 
     public function login(Request $request, Response $response): Response
     {
-        $data = $request->getParsedBody();
+        $credentials = $request->getParsedBody();
 
-        $v = new Validator($data);
+        $v = new Validator($credentials);
         $v->rule('required', ['email', 'password']);
         $v->rule('email', 'email');
 
-        $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $data['email']]);
-
-        if (!$user || !password_verify($data['password'], $user->getPassword())) {
-            throw new ValidationException(
-                [
-                    'email'    => ['Email or password are incorrect'],
-                    'password' => ['Email or password are incorrect'],
-                ],
-            );
+        if (!$this->auth->attemptLogin($credentials)) {
+            $message = 'Email or password are incorrect';
+            throw new ValidationException(['email' => [$message], 'password' => [$message]]);
         }
-
-        session_regenerate_id();
-
-        $_SESSION['user'] = $user->getId();
 
         return $response->withStatus(302)->withHeader('Location', '/');
     }
