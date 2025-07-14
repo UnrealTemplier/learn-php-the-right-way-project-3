@@ -73,4 +73,17 @@ class Session implements SessionInterface
     {
         return session_regenerate_id();
     }
+
+    public function flash(string $key, array $data): void
+    {
+        $_SESSION[$this->config->flashName][$key] = $data;
+    }
+
+    public function getFlash(string $key): array
+    {
+        $data = $_SESSION[$this->config->flashName][$key] ?? [];
+        unset($_SESSION[$this->config->flashName][$key]);
+
+        return $data;
+    }
 }

@@ -23,4 +23,7 @@ interface SessionInterface
 
     public function regenerate(): bool;
 
+    public function flash(string $key, array $data): void;
+
+    public function getFlash(string $key): array;
 }
