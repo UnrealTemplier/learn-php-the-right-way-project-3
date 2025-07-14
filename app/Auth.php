@@ -5,15 +5,13 @@ declare(strict_types=1);
 namespace App;
 
 use App\Contracts\UserInterface;
-use App\Entity\User;
-use App\Exception\ValidationException;
-use Doctrine\ORM\EntityManager;
+use App\Contracts\UserProviderServiceInterface;
 
 class Auth implements Contracts\AuthInterface
 {
     private ?UserInterface $user = null;
 
-    public function __construct(private readonly EntityManager $entityManager) {}
+    public function __construct(private readonly UserProviderServiceInterface $userProviderService) {}
 
     public function user(): ?UserInterface
     {
@@ -27,7 +25,7 @@ class Auth implements Contracts\AuthInterface
             return null;
         }
 
-        $user = $this->entityManager->getRepository(User::class)->find($userId);
+        $user = $this->userProviderService->getById($userId);
 
         if (!$user) {
             return null;
@@ -40,7 +38,7 @@ class Auth implements Contracts\AuthInterface
 
     public function attemptLogin(array $credentials): bool
     {
-        $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $credentials['email']]);
+        $user = $this->userProviderService->getByCredentials($credentials);
 
         if (!$user || !password_verify($credentials['password'], $user->getPassword())) {
             return false;
