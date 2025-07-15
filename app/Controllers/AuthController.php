@@ -6,6 +6,8 @@ namespace App\Controllers;
 
 use App\Contracts\AuthInterface;
 use App\Contracts\RequestValidatorFactoryInterface;
+use App\DataObjects\LoginData;
+use App\DataObjects\RegisterUserData;
 use App\Exception\ValidationException;
 use App\RequestValidators\LoginRequestValidator;
 use App\RequestValidators\RegisterUserRequestValidator;
@@ -28,11 +30,16 @@ class AuthController
 
     public function login(Request $request, Response $response): Response
     {
-        $credentials = $this->requestValidatorFactory
+        $data = $this->requestValidatorFactory
             ->make(LoginRequestValidator::class)
             ->validate($request->getParsedBody());
 
-        if (!$this->auth->attemptLogin($credentials)) {
+        if (!$this->auth->attemptLogin(
+            new LoginData(
+                $data['email'],
+                $data['password'],
+            ),
+        )) {
             $message = 'Email or password are incorrect';
             throw new ValidationException(['email' => [$message], 'password' => [$message]]);
         }
@@ -58,7 +65,13 @@ class AuthController
             ->make(RegisterUserRequestValidator::class)
             ->validate($request->getParsedBody());
 
-        $this->auth->register($data);
+        $this->auth->register(
+            new RegisterUserData(
+                $data['name'],
+                $data['email'],
+                $data['password'],
+            ),
+        );
 
         return $response->withStatus(302)->withHeader('Location', '/');
     }

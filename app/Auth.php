@@ -7,6 +7,8 @@ namespace App;
 use App\Contracts\SessionInterface;
 use App\Contracts\UserInterface;
 use App\Contracts\UserProviderServiceInterface;
+use App\DataObjects\LoginData;
+use App\DataObjects\RegisterUserData;
 
 class Auth implements Contracts\AuthInterface
 {
@@ -40,7 +42,7 @@ class Auth implements Contracts\AuthInterface
         return $this->user;
     }
 
-    public function attemptLogin(array $credentials): bool
+    public function attemptLogin(LoginData $credentials): bool
     {
         $user = $this->userProvider->getByCredentials($credentials);
 
@@ -61,12 +63,12 @@ class Auth implements Contracts\AuthInterface
         $this->user = null;
     }
 
-    private function check_credentials(UserInterface $user, array $credentials): bool
+    private function check_credentials(UserInterface $user, LoginData $credentials): bool
     {
-        return password_verify($credentials['password'], $user->getPassword());
+        return password_verify($credentials->password, $user->getPassword());
     }
 
-    public function register(array $data): UserInterface
+    public function register(RegisterUserData $data): UserInterface
     {
         $user = $this->userProvider->create($data);
         if (!$user) {
