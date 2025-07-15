@@ -74,14 +74,8 @@ class AuthController
             throw new ValidationException($v->errors());
         }
 
-        $user = new User();
-        $user->setName($data['name']);
-        $user->setEmail($data['email']);
-        $user->setPassword(password_hash($data['password'], PASSWORD_BCRYPT, ['cost' => 12]));
+        $this->auth->register($data);
 
-        $this->entityManager->persist($user);
-        $this->entityManager->flush();
-
-        return $response;
+        return $response->withStatus(302)->withHeader('Location', '/');
     }
 }

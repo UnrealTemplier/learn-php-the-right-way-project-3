@@ -9,4 +9,6 @@ interface UserProviderServiceInterface
     public function getById(int $userId): ?UserInterface;
 
     public function getByCredentials(array $credentials): ?UserInterface;
+
+    public function create(array $data): ?UserInterface;
 }
