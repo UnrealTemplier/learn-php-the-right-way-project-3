@@ -7,7 +7,6 @@ namespace App;
 use App\Contracts\SessionInterface;
 use App\Contracts\UserInterface;
 use App\Contracts\UserProviderServiceInterface;
-use App\Entity\User;
 
 class Auth implements Contracts\AuthInterface
 {

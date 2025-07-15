@@ -5,20 +5,20 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Contracts\AuthInterface;
-use App\Entity\User;
+use App\Contracts\RequestValidatorFactoryInterface;
 use App\Exception\ValidationException;
-use Doctrine\ORM\EntityManager;
+use App\RequestValidators\LoginRequestValidator;
+use App\RequestValidators\RegisterUserRequestValidator;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Views\Twig;
-use Valitron\Validator;
 
 class AuthController
 {
     public function __construct(
-        private readonly Twig          $twig,
-        private readonly EntityManager $entityManager,
-        private readonly AuthInterface $auth,
+        private readonly Twig                             $twig,
+        private readonly RequestValidatorFactoryInterface $requestValidatorFactory,
+        private readonly AuthInterface                    $auth,
     ) {}
 
     public function loginView(Request $request, Response $response): Response
@@ -28,11 +28,9 @@ class AuthController
 
     public function login(Request $request, Response $response): Response
     {
-        $credentials = $request->getParsedBody();
-
-        $v = new Validator($credentials);
-        $v->rule('required', ['email', 'password']);
-        $v->rule('email', 'email');
+        $credentials = $this->requestValidatorFactory
+            ->make(LoginRequestValidator::class)
+            ->validate($request->getParsedBody());
 
         if (!$this->auth->attemptLogin($credentials)) {
             $message = 'Email or password are incorrect';
@@ -56,23 +54,9 @@ class AuthController
 
     public function register(Request $request, Response $response): Response
     {
-        $data = $request->getParsedBody();
-
-        $v = new Validator($data);
-        $v->rule('required', ['name', 'email', 'password', 'confirmPassword']);
-        $v->rule('email', 'email');
-        $v->rule('equals', 'confirmPassword', 'password')->label('Confirm password');
-        $v->rule(
-            fn($field, $value, $params, $fields)
-                => !$this->entityManager
-                ->getRepository(User::class)
-                ->count(['email' => $value]),
-            "email",
-        )->message("User with the given email address already exists");
-
-        if (!$v->validate()) {
-            throw new ValidationException($v->errors());
-        }
+        $data = $this->requestValidatorFactory
+            ->make(RegisterUserRequestValidator::class)
+            ->validate($request->getParsedBody());
 
         $this->auth->register($data);
 
