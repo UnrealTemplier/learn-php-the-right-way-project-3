@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\GeneratedValue;
 use Doctrine\ORM\Mapping\Id;
 use Doctrine\ORM\Mapping\ManyToOne;
+use Doctrine\ORM\Mapping\PrePersist;
+use Doctrine\ORM\Mapping\PreUpdate;
 use Doctrine\ORM\Mapping\Table;
 
 #[Entity, Table('receipts')]
@@ -25,6 +28,14 @@ class Receipt
 
     #[ManyToOne(inversedBy: 'transactions')]
     private Transaction $transaction;
+
+    #[PrePersist, PreUpdate]
+    public function updateCreatedAt(LifecycleEventArgs $args): void
+    {
+        if (!isset($this->createdAt)) {
+            $this->createdAt = new \DateTime();
+        }
+    }
 
     public function getId(): int
     {

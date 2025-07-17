@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use App\Entity\Traits\HasTimestamps;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -18,6 +19,8 @@ use Doctrine\ORM\Mapping\Table;
 #[Entity, Table('transactions')]
 class Transaction
 {
+    use HasTimestamps;
+
     #[Id, Column(options: ['unsigned' => true]), GeneratedValue]
     private int $id;
 
@@ -29,12 +32,6 @@ class Transaction
 
     #[Column(type: Types::DECIMAL, precision: 13, scale: 3)]
     private float $amount;
-
-    #[Column(name: 'created_at')]
-    private \DateTime $createdAt;
-
-    #[Column(name: 'updated_at')]
-    private \DateTime $updatedAt;
 
     #[ManyToOne(inversedBy: 'transactions')]
     private Category $category;
@@ -85,28 +82,6 @@ class Transaction
     public function setAmount(float $amount): Transaction
     {
         $this->amount = $amount;
-        return $this;
-    }
-
-    public function getCreatedAt(): \DateTime
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTime $createdAt): Transaction
-    {
-        $this->createdAt = $createdAt;
-        return $this;
-    }
-
-    public function getUpdatedAt(): \DateTime
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTime $updatedAt): Transaction
-    {
-        $this->updatedAt = $updatedAt;
         return $this;
     }
 
