@@ -34,4 +34,9 @@ class CategoryService
     {
         return $this->entityManager->getRepository(Category::class)->findAll();
     }
+
+    public function getById(int $id): ?Category
+    {
+        return $this->entityManager->find(Category::class, $id);
+    }
 }
