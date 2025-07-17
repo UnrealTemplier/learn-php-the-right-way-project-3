@@ -1,4 +1,5 @@
 import {Modal} from "bootstrap"
+import {get, post} from "./ajax";
 
 window.addEventListener('DOMContentLoaded', function () {
     const editCategoryModal = new Modal(document.getElementById('editCategoryModal'));
@@ -7,19 +8,19 @@ window.addEventListener('DOMContentLoaded', function () {
         button.addEventListener('click', function (event) {
             const categoryId = event.currentTarget.getAttribute('data-id');
 
-            fetch(`/categories/${categoryId}`)
-                .then(response => response.json())
-                .then(response => {
-                    openEditCategoryModal(editCategoryModal, response);
-                });
+            get(`/categories/${categoryId}`)
+                .then(response => openEditCategoryModal(editCategoryModal, response));
         });
     });
 
     document.querySelector('.save-category-btn').addEventListener('click', function (event) {
         const categoryId = event.currentTarget.getAttribute('data-id');
 
-        // TODO: Post update to the category
-        console.log('Saving ' + categoryId);
+        post(`/categories/${categoryId}`, {
+            name: editCategoryModal._element.querySelector('input[name="name"]').value
+        }).then(response => {
+            console.log(response);
+        })
     });
 });
 

@@ -16,7 +16,7 @@ return function (App $app) {
     $app->group('', function (RouteCollectorProxy $guest) {
         $guest->get('/login', [AuthController::class, 'loginView']);
         $guest->get('/register', [AuthController::class, 'registerView']);
-        $guest->post('/login', [AuthController::class, 'logIn']);
+        $guest->post('/login', [AuthController::class, 'login']);
         $guest->post('/register', [AuthController::class, 'register']);
     })->add(GuestMiddleware::class);
 
@@ -27,5 +27,6 @@ return function (App $app) {
         $categories->post('', [CategoriesController::class, 'store']);
         $categories->delete('/{id}', [CategoriesController::class, 'delete']);
         $categories->get('/{id}', [CategoriesController::class, 'get']);
+        $categories->post('/{id}', [CategoriesController::class, 'update']);
     })->add(AuthMiddleware::class);
 };
