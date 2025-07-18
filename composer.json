@@ -18,6 +18,8 @@
         "doctrine/dbal": "^3.4",
         "doctrine/migrations": "^3.5",
         "doctrine/orm": "^2.13",
+        "fakerphp/faker": "^1.24",
+        "mbezhanov/faker-provider-collection": "^2.0",
         "php-di/php-di": "^6.4",
         "slim/csrf": "^1.4",
         "slim/psr7": "^1.5",
