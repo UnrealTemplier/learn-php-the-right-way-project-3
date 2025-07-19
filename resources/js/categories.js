@@ -3,6 +3,7 @@ import {del, get, post} from "./ajax"
 import DataTable from "datatables.net"
 
 window.addEventListener('DOMContentLoaded', function () {
+    const newCategoryModal = new Modal(document.getElementById('newCategoryModal'))
     const editCategoryModal = new Modal(document.getElementById('editCategoryModal'))
 
     const table = new DataTable('#categoriesTable', {
@@ -43,8 +44,10 @@ window.addEventListener('DOMContentLoaded', function () {
             const categoryId = deleteBtn.getAttribute('data-id')
 
             if (confirm('Are you sure you want to delete this category?')) {
-                del(`/categories/${categoryId}`).then(() => {
-                    table.draw()
+                del(`/categories/${categoryId}`).then((response) => {
+                    if (response.ok) {
+                        table.draw()
+                    }
                 })
             }
         }
@@ -59,6 +62,17 @@ window.addEventListener('DOMContentLoaded', function () {
             if (response.ok) {
                 table.draw()
                 editCategoryModal.hide()
+            }
+        })
+    })
+
+    document.querySelector('.new-category-btn').addEventListener('click', function (event) {
+        post(`/categories`, {
+            name: newCategoryModal._element.querySelector('input[name="name"]').value
+        }, newCategoryModal._element).then(response => {
+            if (response.ok) {
+                table.draw()
+                newCategoryModal.hide()
             }
         })
     })

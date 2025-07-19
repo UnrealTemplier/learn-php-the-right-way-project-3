@@ -23,11 +23,19 @@ return function (App $app) {
     $app->post('/logout', [AuthController::class, 'logOut'])->add(AuthMiddleware::class);
 
     $app->group('/categories', function (RouteCollectorProxy $categories) {
+        // Render main Categories page
         $categories->get('', [CategoriesController::class, 'index']);
+        // Get paginated categories data in DataTable js library format
         $categories->get('/load', [CategoriesController::class, 'load']);
+
+        // Create new category
         $categories->post('', [CategoriesController::class, 'store']);
-        $categories->delete('/{id}', [CategoriesController::class, 'delete']);
-        $categories->get('/{id}', [CategoriesController::class, 'get']);
-        $categories->post('/{id}', [CategoriesController::class, 'update']);
+
+        // Get a specific category
+        $categories->get('/{id:[0-9]+}', [CategoriesController::class, 'get']);
+        // Update a specific category
+        $categories->post('/{id:[0-9]+}', [CategoriesController::class, 'update']);
+        // Delete a specific category
+        $categories->delete('/{id:[0-9]+}', [CategoriesController::class, 'delete']);
     })->add(AuthMiddleware::class);
 };

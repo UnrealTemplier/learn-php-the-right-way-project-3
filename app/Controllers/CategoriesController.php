@@ -36,9 +36,11 @@ class CategoriesController
             $request->getParsedBody(),
         );
 
-        $this->categoryService->create($data['name'], $request->getAttribute('user'));
+        if (!$this->categoryService->create($data['name'], $request->getAttribute('user'))) {
+            return $response->withStatus(422);
+        }
 
-        return $response->withHeader('Location', '/categories')->withStatus(302);
+        return $response;
     }
 
     public function delete(Request $request, Response $response, array $args): Response
