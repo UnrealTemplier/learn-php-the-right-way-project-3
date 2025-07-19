@@ -24,7 +24,7 @@ function createDataTable() {
                         }
                     ).format(row.amount)
                 },
-                {data: "category", sortable: false},
+                {data: "category"},
                 {data: "date"},
                 {
                     sortable: false, data: row => `

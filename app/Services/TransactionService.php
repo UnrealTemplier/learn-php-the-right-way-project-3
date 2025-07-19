@@ -7,7 +7,6 @@ namespace App\Services;
 use App\Contracts\UserInterface;
 use App\DataObjects\DataTableQueryParams;
 use App\DataObjects\TransactionData;
-use App\Entity\Category;
 use App\Entity\Transaction;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\Pagination\Paginator;
@@ -35,10 +34,11 @@ class TransactionService
         $query = $this->entityManager
             ->getRepository(Transaction::class)
             ->createQueryBuilder('t')
+            ->leftJoin('t.category', 'c')
             ->setFirstResult($params->start)
             ->setMaxResults($params->length);
 
-        $orderBy  = in_array($params->orderBy, ['description', 'date', 'amount']) ? $params->orderBy : 'date';
+        $orderBy  = in_array($params->orderBy, ['description', 'date', 'amount', 'category']) ? $params->orderBy : 'date';
         $orderDir = strtolower($params->orderDir) === 'asc' ? 'asc' : 'desc';
 
         if (!empty($params->searchTerm)) {
@@ -47,7 +47,11 @@ class TransactionService
                 ->setParameter('description', '%' . addcslashes($params->searchTerm, '%_') . '%');
         }
 
-        $query->orderBy('t.' . $orderBy, $orderDir);
+        if ($orderBy === 'category') {
+            $query->orderBy('c.name', $orderDir);
+        } else {
+            $query->orderBy('t.' . $orderBy, $orderDir);
+        }
 
         return new Paginator($query);
     }
