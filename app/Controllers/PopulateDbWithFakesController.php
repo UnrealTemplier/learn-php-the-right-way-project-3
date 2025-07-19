@@ -22,10 +22,10 @@ class PopulateDbWithFakesController
 
         $user = $request->getAttribute('user');
 
-        for ($i = 0; $i < 100; $i++) {
+        for ($i = 0; $i < 55; $i++) {
             $category = new Category();
             $category->setUser($user);
-            $category->setName($faker->category);
+            $category->setName($faker->unique()->word());
             $this->entityManager->persist($category);
         }
 

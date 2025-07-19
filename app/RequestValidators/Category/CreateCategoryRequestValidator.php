@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\RequestValidators;
+namespace App\RequestValidators\Category;
 
 use App\Contracts\RequestValidatorInterface;
 use App\Exception\ValidationException;

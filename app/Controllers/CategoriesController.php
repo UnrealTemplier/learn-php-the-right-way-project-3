@@ -6,8 +6,8 @@ namespace App\Controllers;
 
 use App\Contracts\RequestValidatorFactoryInterface;
 use App\Entity\Category;
-use App\RequestValidators\CreateCategoryRequestValidator;
-use App\RequestValidators\UpdateCategoryRequestValidator;
+use App\RequestValidators\Category\CreateCategoryRequestValidator;
+use App\RequestValidators\Category\UpdateCategoryRequestValidator;
 use App\ResponseFormatter;
 use App\Services\CategoryService;
 use App\Services\RequestService;

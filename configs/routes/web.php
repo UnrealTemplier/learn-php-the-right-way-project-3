@@ -5,6 +5,8 @@ declare(strict_types=1);
 use App\Controllers\AuthController;
 use App\Controllers\CategoriesController;
 use App\Controllers\HomeController;
+use App\Controllers\PopulateDbWithFakesController;
+use App\Controllers\TransactionsController;
 use App\Middleware\AuthMiddleware;
 use App\Middleware\GuestMiddleware;
 use Slim\App;
@@ -12,6 +14,8 @@ use Slim\Routing\RouteCollectorProxy;
 
 return function (App $app) {
     $app->get('/', [HomeController::class, 'index'])->add(AuthMiddleware::class);
+
+    $app->get('/fake/categories', [PopulateDbWithFakesController::class, 'populateCategories'])->add(AuthMiddleware::class);
 
     $app->group('', function (RouteCollectorProxy $guest) {
         $guest->get('/login', [AuthController::class, 'loginView']);
@@ -37,5 +41,22 @@ return function (App $app) {
         $categories->post('/{id:[0-9]+}', [CategoriesController::class, 'update']);
         // Delete a specific category
         $categories->delete('/{id:[0-9]+}', [CategoriesController::class, 'delete']);
+    })->add(AuthMiddleware::class);
+
+    $app->group('/transactions', function (RouteCollectorProxy $transactions) {
+        // Render main Transactions page
+        $transactions->get('', [TransactionsController::class, 'index']);
+        // Get paginated transactions data in DataTable js library format
+        $transactions->get('/load', [TransactionsController::class, 'load']);
+
+        // Create new transaction
+        $transactions->post('', [TransactionsController::class, 'store']);
+
+        // Get a specific transaction
+        $transactions->get('/{id:[0-9]+}', [TransactionsController::class, 'get']);
+        // Update a specific transaction
+        $transactions->post('/{id:[0-9]+}', [TransactionsController::class, 'update']);
+        // Delete a specific transaction
+        $transactions->delete('/{id:[0-9]+}', [TransactionsController::class, 'delete']);
     })->add(AuthMiddleware::class);
 };
