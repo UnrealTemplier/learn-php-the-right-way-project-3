@@ -45,7 +45,7 @@ function createDataTable() {
                             icon.classList.add('bi', 'bi-file-earmark-text', 'download-receipt', 'text-primary', 'fs-4')
                             deleteIcon.classList.add('bi', 'bi-x-circle-fill', 'delete-receipt', 'text-danger', 'position-absolute')
 
-                            anchor.href   = `/transactions/${ row.id }/receipts/${ receipt.id }`
+                            anchor.href   = `/transactions/${row.id}/receipts/${receipt.id}`
                             anchor.target = 'blank'
                             anchor.title  = receipt.name
 
@@ -198,7 +198,7 @@ function addDeleteReceiptListener(table) {
             const transactionId = deleteReceiptBtn.getAttribute('data-transactionId')
 
             if (confirm('Are you sure you want to delete this receipt?')) {
-                del(`/transactions/${ transactionId }/receipts/${ receiptId }`).then(response => {
+                del(`/transactions/${transactionId}/receipts/${receiptId}`).then(response => {
                     if (response.ok) {
                         table.draw()
                     }

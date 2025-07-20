@@ -51,16 +51,9 @@ class ReceiptController
         $transactionId = (int)$args['transactionId'];
         $receiptId     = (int)$args['id'];
 
-        if (!$transactionId || !$this->transactionService->getById($transactionId)) {
-            return $response->withStatus(404);
-        }
-
-        if (!$receiptId || !($receipt = $this->receiptService->getById($receiptId))) {
-            return $response->withStatus(404);
-        }
-
-        if ($receipt->getTransaction()->getId() !== $transactionId) {
-            return $response->withStatus(401);
+        [$response, $receipt] = $this->validateIds($transactionId, $receiptId, $response);
+        if (!$receipt) {
+            return $response;
         }
 
         $file = $this->filesystem->readStream('receipts/' . $receipt->getStorageFilename());
@@ -75,6 +68,35 @@ class ReceiptController
 
     public function delete(Request $request, Response $response, array $args): Response
     {
+        $transactionId = (int)$args['transactionId'];
+        $receiptId     = (int)$args['id'];
+
+        [$response, $receipt] = $this->validateIds($transactionId, $receiptId, $response);
+        if (!$receipt) {
+            return $response;
+        }
+
+        $this->filesystem->delete($receipt->getStorageFilename());
+
+        $this->receiptService->delete($receiptId);
+
         return $response;
+    }
+
+    private function validateIds(int $transactionId, int $receiptId, Response $response): array
+    {
+        if (!$transactionId || !$this->transactionService->getById($transactionId)) {
+            return [$response->withStatus(404), null];
+        }
+
+        if (!$receiptId || !($receipt = $this->receiptService->getById($receiptId))) {
+            return [$response->withStatus(404), null];
+        }
+
+        if ($receipt->getTransaction()->getId() !== $transactionId) {
+            return [$response->withStatus(401), null];
+        }
+
+        return [$response, $receipt];
     }
 }
