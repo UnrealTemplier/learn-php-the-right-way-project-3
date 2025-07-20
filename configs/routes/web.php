@@ -61,5 +61,15 @@ return function (App $app) {
         $transactions->delete('/{id:[0-9]+}', [TransactionsController::class, 'delete']);
         // Upload a receipt
         $transactions->post('/{id:[0-9]+}/receipts', [ReceiptController::class, 'store']);
+        // Download the receipt
+        $transactions->get(
+            '/{transactionId:[0-9]+}/receipts/{id:[0-9]+}',
+            [ReceiptController::class, 'download']
+        );
+        // Delete the receipt
+        $transactions->delete(
+            '/{transactionId:[0-9]+}/receipts/{id:[0-9]+}',
+            [ReceiptController::class, 'delete']
+        );
     })->add(AuthMiddleware::class);
 };
