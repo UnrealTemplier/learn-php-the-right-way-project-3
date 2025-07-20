@@ -28,7 +28,7 @@ const ajax = (url, method = 'get', data = {}, domElement = null) => {
 
             options.body = data
         } else {
-            options.body = JSON.stringify({...data, ...getCsrfFields()});
+            options.body = JSON.stringify({...data, ...additionalFields});
         }
     } else if (method === 'get') {
         url += '?' + (new URLSearchParams(data)).toString();
