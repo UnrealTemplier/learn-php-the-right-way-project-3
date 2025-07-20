@@ -1,5 +1,10 @@
 {% extends 'layout.twig' %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    {{ encore_entry_link_tags('transactions') }}
+{% endblock %}
+
 {% block javascripts %}
     {{ parent() }}
     {{ encore_entry_script_tags('transactions') }}

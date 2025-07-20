@@ -2,6 +2,8 @@ import {Modal} from "bootstrap"
 import {del, get, post} from "./ajax"
 import DataTable from "datatables.net"
 
+import "../css/transactions.scss"
+
 window.addEventListener('DOMContentLoaded', function () {
     addListeners(createDataTable())
 })
