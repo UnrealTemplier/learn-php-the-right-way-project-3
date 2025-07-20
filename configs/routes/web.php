@@ -6,6 +6,7 @@ use App\Controllers\AuthController;
 use App\Controllers\CategoriesController;
 use App\Controllers\HomeController;
 use App\Controllers\PopulateDbWithFakesController;
+use App\Controllers\ReceiptController;
 use App\Controllers\TransactionsController;
 use App\Middleware\AuthMiddleware;
 use App\Middleware\GuestMiddleware;
@@ -58,5 +59,7 @@ return function (App $app) {
         $transactions->post('/{id:[0-9]+}', [TransactionsController::class, 'update']);
         // Delete a specific transaction
         $transactions->delete('/{id:[0-9]+}', [TransactionsController::class, 'delete']);
+        // Upload a receipt
+        $transactions->post('/{id:[0-9]+}/receipts', [ReceiptController::class, 'store']);
     })->add(AuthMiddleware::class);
 };

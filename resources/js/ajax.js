@@ -12,12 +12,24 @@ const ajax = (url, method = 'get', data = {}, domElement = null) => {
     const csrfMethods = new Set(['post', 'put', 'delete', 'patch']);
 
     if (csrfMethods.has(method)) {
+        let additionalFields = {...getCsrfFields()}
+
         if (method !== 'post') {
-            options.method = 'post';
-            data           = {...data, _METHOD: method.toUpperCase()};
+            options.method           = 'post';
+            additionalFields._METHOD = method.toUpperCase()
         }
 
-        options.body = JSON.stringify({...data, ...getCsrfFields()});
+        if (data instanceof FormData) {
+            for (const additionalField in additionalFields) {
+                data.append(additionalField, additionalFields[additionalField])
+            }
+
+            delete options.headers['Content-Type'];
+
+            options.body = data
+        } else {
+            options.body = JSON.stringify({...data, ...getCsrfFields()});
+        }
     } else if (method === 'get') {
         url += '?' + (new URLSearchParams(data)).toString();
     }

@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 use App\Enum\AppEnvironment;
 use App\Enum\SameSite;
+use App\Enum\StorageDriver;
 
-$appEnv = $_ENV['APP_ENV'] ?? AppEnvironment::Production->value;
+$appEnv       = $_ENV['APP_ENV'] ?? AppEnvironment::Production->value;
 $appSnakeName = strtolower(str_replace(' ', '_', $_ENV['APP_NAME']));
 
 return [
@@ -29,10 +30,13 @@ return [
         ],
     ],
     'session'               => [
-        'name'     => $appSnakeName . '_session',
-        'flash_name'     => $appSnakeName . '_flash',
-        'secure'   => true,
-        'httpOnly' => true,
-        'sameSite' => SameSite::Lax->value,
+        'name'       => $appSnakeName . '_session',
+        'flash_name' => $appSnakeName . '_flash',
+        'secure'     => true,
+        'httpOnly'   => true,
+        'sameSite'   => SameSite::Lax->value,
+    ],
+    'storage'               => [
+        'driver' => StorageDriver::Local,
     ],
 ];
