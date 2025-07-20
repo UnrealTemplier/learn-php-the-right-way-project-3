@@ -14,12 +14,14 @@
         "optimize-autoloader": true
     },
     "require": {
+        "ext-fileinfo": "*",
         "ext-pdo": "*",
         "doctrine/dbal": "^3.4",
         "doctrine/migrations": "^3.5",
         "doctrine/orm": "^2.13",
         "fakerphp/faker": "^1.24",
         "league/flysystem": "^3.0",
+        "league/mime-type-detection": "^1.16",
         "mbezhanov/faker-provider-collection": "^2.0",
         "php-di/php-di": "^6.4",
         "slim/csrf": "^1.4",
@@ -33,8 +35,7 @@
         "twig/intl-extra": "^3.4",
         "twig/twig": "^3.4",
         "vlucas/phpdotenv": "^5.4",
-        "vlucas/valitron": "^1.4",
-      "ext-fileinfo": "*"
+        "vlucas/valitron": "^1.4"
     },
     "require-dev": {
         "phpunit/phpunit": "^9.5"
