@@ -36,7 +36,7 @@ class Transaction
     private float $amount;
 
     #[ManyToOne(inversedBy: 'transactions')]
-    private Category $category;
+    private ?Category $category;
 
     #[ManyToOne(inversedBy: 'transactions')]
     private User $user;
@@ -87,14 +87,14 @@ class Transaction
         return $this;
     }
 
-    public function getCategory(): Category
+    public function getCategory(): ?Category
     {
         return $this->category;
     }
 
-    public function setCategory(Category $category): Transaction
+    public function setCategory(?Category $category): Transaction
     {
-        $category->addTransaction($this);
+        $category?->addTransaction($this);
         $this->category = $category;
         return $this;
     }

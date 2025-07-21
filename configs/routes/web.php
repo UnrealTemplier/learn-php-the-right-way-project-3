@@ -7,6 +7,7 @@ use App\Controllers\CategoriesController;
 use App\Controllers\HomeController;
 use App\Controllers\PopulateDbWithFakesController;
 use App\Controllers\ReceiptController;
+use App\Controllers\TransactionImporterController;
 use App\Controllers\TransactionsController;
 use App\Middleware\AuthMiddleware;
 use App\Middleware\GuestMiddleware;
@@ -41,6 +42,7 @@ return function (App $app) {
     $app->group('/transactions', function (RouteCollectorProxy $transactions) {
         $transactions->get('', [TransactionsController::class, 'index']);
         $transactions->get('/load', [TransactionsController::class, 'load']);
+        $transactions->post('/import', [TransactionImporterController::class, 'import']);
         $transactions->post('', [TransactionsController::class, 'store']);
         $transactions->get('/{id:[0-9]+}', [TransactionsController::class, 'get']);
         $transactions->post('/{id:[0-9]+}', [TransactionsController::class, 'update']);
