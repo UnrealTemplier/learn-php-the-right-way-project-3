@@ -16,6 +16,10 @@ use App\Enum\StorageDriver;
 use App\RequestValidators\RequestValidatorFactory;
 use App\Services\UserProviderService;
 use App\Session;
+use Clockwork\DataSource\DoctrineDataSource;
+use Clockwork\Storage\FileStorage;
+use Clockwork\Clockwork;
+use Doctrine\DBAL\DriverManager;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\ORMSetup;
 use League\Flysystem\Filesystem;
@@ -52,14 +56,17 @@ return [
 
     Config::class => create(Config::class)->constructor(require CONFIG_PATH . '/app.php'),
 
-    EntityManager::class => fn(Config $config)
-        => EntityManager::create(
-        $config->get('doctrine.connection'),
-        ORMSetup::createAttributeMetadataConfiguration(
+    EntityManager::class => function (Config $config) {
+        $ormConfig = ORMSetup::createAttributeMetadataConfiguration(
             $config->get('doctrine.entity_dir'),
             $config->get('doctrine.dev_mode'),
-        ),
-    ),
+        );
+
+        return new EntityManager(
+            DriverManager::getConnection($config->get('doctrine.connection'), $ormConfig),
+            $ormConfig,
+        );
+    },
 
     Twig::class                   => function (Config $config, ContainerInterface $container) {
         $twig = Twig::create(VIEW_PATH, [
@@ -89,7 +96,10 @@ return [
 
     AuthInterface::class => fn(ContainerInterface $container) => $container->get(Auth::class),
 
-    UserProviderServiceInterface::class => fn(ContainerInterface $container) => $container->get(UserProviderService::class),
+    UserProviderServiceInterface::class => fn(ContainerInterface $container)
+        => $container->get(
+        UserProviderService::class,
+    ),
 
     SessionInterface::class => fn(Config $config) => new Session(
         new SessionConfig(
@@ -101,7 +111,10 @@ return [
         ),
     ),
 
-    RequestValidatorFactoryInterface::class => fn(ContainerInterface $container) => $container->get(RequestValidatorFactory::class),
+    RequestValidatorFactoryInterface::class => fn(ContainerInterface $container)
+        => $container->get(
+        RequestValidatorFactory::class,
+    ),
 
     'csrf' => fn(ResponseFactoryInterface $responseFactory, Csrf $csrf)
         => new Guard($responseFactory, failureHandler: $csrf->failureHandler(), persistentTokenMode: true),
@@ -111,5 +124,12 @@ return [
             StorageDriver::Local => new League\Flysystem\Local\LocalFilesystemAdapter(STORAGE_PATH),
         };
         return new League\Flysystem\Filesystem($adapter);
+    },
+
+    Clockwork::class => function (EntityManager $entityManager) {
+        $clockwork = new Clockwork();
+        $clockwork->storage(new FileStorage(STORAGE_PATH . '/clockwork'));
+        $clockwork->addDataSource(new DoctrineDataSource($entityManager));
+        return $clockwork;
     },
 ];

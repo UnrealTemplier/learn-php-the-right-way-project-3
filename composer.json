@@ -20,6 +20,7 @@
         "doctrine/migrations": "^3.5",
         "doctrine/orm": "^2.13",
         "fakerphp/faker": "^1.24",
+        "itsgoingd/clockwork": "v5.1.12",
         "league/flysystem": "^3.0",
         "league/mime-type-detection": "^1.16",
         "mbezhanov/faker-provider-collection": "^2.0",
