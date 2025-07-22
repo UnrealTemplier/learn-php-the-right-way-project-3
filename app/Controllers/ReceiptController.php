@@ -9,8 +9,8 @@ use App\Contracts\RequestValidatorFactoryInterface;
 use App\Entity\Receipt;
 use App\Entity\Transaction;
 use App\RequestValidators\Transaction\UploadReceiptRequestValidator;
+use App\Services\ReceiptFileService;
 use App\Services\ReceiptService;
-use League\Flysystem\Filesystem;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\UploadedFileInterface;
@@ -19,10 +19,10 @@ use Slim\Psr7\Stream;
 class ReceiptController
 {
     public function __construct(
-        private readonly Filesystem                       $filesystem,
         private readonly RequestValidatorFactoryInterface $requestValidatorFactory,
         private readonly ReceiptService                   $receiptService,
         private readonly EntityManagerServiceInterface    $entityManagerService,
+        private readonly ReceiptFileService               $receiptFileService,
     ) {}
 
     public function store(Request $request, Response $response, Transaction $transaction): Response
@@ -36,7 +36,7 @@ class ReceiptController
 
         $randomFilename = bin2hex(random_bytes(25));
 
-        $this->filesystem->write('receipts/' . $randomFilename, $file->getStream()->getContents());
+        $this->receiptFileService->store($randomFilename, $file);
 
         $this->entityManagerService->sync(
             $this->receiptService->create($transaction, $filename, $randomFilename, $file->getClientMediaType()),
@@ -51,7 +51,7 @@ class ReceiptController
             return $response->withStatus(401);
         }
 
-        $file = $this->filesystem->readStream('receipts/' . $receipt->getStorageFilename());
+        $file = $this->receiptFileService->get($receipt->getStorageFilename());
 
         $response = $response->withHeader(
             'Content-Disposition',
@@ -67,7 +67,7 @@ class ReceiptController
             return $response->withStatus(401);
         }
 
-        $this->filesystem->delete($receipt->getStorageFilename());
+        $this->receiptFileService->delete($receipt->getStorageFilename());
 
         $this->entityManagerService->delete($receipt, true);
 

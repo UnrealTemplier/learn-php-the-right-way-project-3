@@ -12,6 +12,7 @@ use App\Entity\Transaction;
 use App\RequestValidators\Transaction\TransactionRequestValidator;
 use App\ResponseFormatter;
 use App\Services\CategoryService;
+use App\Services\ReceiptFileService;
 use App\Services\RequestService;
 use App\Services\TransactionService;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -28,6 +29,7 @@ class TransactionsController
         private readonly ResponseFormatter                $responseFormatter,
         private readonly RequestService                   $requestService,
         private readonly EntityManagerServiceInterface    $entityManagerService,
+        private readonly ReceiptFileService               $receiptFileService,
     ) {}
 
     public function index(Response $response): Response
@@ -64,6 +66,13 @@ class TransactionsController
 
     public function delete(Response $response, Transaction $transaction): Response
     {
+        /** @var Receipt[] $receipts */
+        $receipts = $transaction->getReceipts();
+
+        foreach ($receipts as $receipt) {
+            $this->receiptFileService->delete($receipt->getStorageFilename());
+        }
+
         $this->entityManagerService->delete($transaction, true);
 
         return $response;
