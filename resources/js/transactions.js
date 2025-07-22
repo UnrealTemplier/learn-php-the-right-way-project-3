@@ -186,10 +186,10 @@ function addDeleteTransactionListener(table) {
 
 function addUploadReceiptListener(table, uploadReceiptModal) {
     document.querySelector('#transactionsTable').addEventListener('click', function (event) {
-        const uploadReceiptBtn = event.target.closest('.open-receipt-upload-btn')
+        const openReceiptUploadBtn = event.target.closest('.open-receipt-upload-btn')
 
-        if (uploadReceiptBtn) {
-            const transactionId = uploadReceiptBtn.getAttribute('data-id')
+        if (openReceiptUploadBtn) {
+            const transactionId = openReceiptUploadBtn.getAttribute('data-id')
 
             uploadReceiptModal._element
                               .querySelector('.upload-receipt-btn')
@@ -197,24 +197,24 @@ function addUploadReceiptListener(table, uploadReceiptModal) {
 
             uploadReceiptModal.show()
         }
+    })
 
-        uploadReceiptModal._element.querySelector('.upload-receipt-btn').addEventListener('click', function (event) {
-            const transactionId = event.currentTarget.getAttribute('data-id')
-            const formData      = new FormData();
-            const files         = uploadReceiptModal._element.querySelector('input[type="file"]').files;
+    uploadReceiptModal._element.querySelector('.upload-receipt-btn').addEventListener('click', function (event) {
+        const transactionId = event.currentTarget.getAttribute('data-id')
+        const formData      = new FormData();
+        const files         = uploadReceiptModal._element.querySelector('input[type="file"]').files;
 
-            for (let i = 0; i < files.length; i++) {
-                formData.append('receipt', files[i]);
-            }
+        for (let i = 0; i < files.length; i++) {
+            formData.append('receipt', files[i]);
+        }
 
-            post(`/transactions/${transactionId}/receipts`, formData, uploadReceiptModal._element)
-                .then(response => {
-                    if (response.ok) {
-                        table.draw()
-                        uploadReceiptModal.hide()
-                    }
-                })
-        })
+        post(`/transactions/${transactionId}/receipts`, formData, uploadReceiptModal._element)
+            .then(response => {
+                if (response.ok) {
+                    table.draw()
+                    uploadReceiptModal.hide()
+                }
+            })
     })
 }
 
