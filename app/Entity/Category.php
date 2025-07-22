@@ -31,7 +31,7 @@ class Category
     #[ManyToOne(inversedBy: 'categories')]
     private User $user;
 
-    #[OneToMany(mappedBy: 'categories', targetEntity: Transaction::class)]
+    #[OneToMany(mappedBy: 'category', targetEntity: Transaction::class)]
     private Collection $transactions;
 
     public function __construct()
@@ -67,7 +67,7 @@ class Category
         return $this;
     }
 
-    public function getTransactions(): Collection
+    public function getTransactions(): ArrayCollection|Collection
     {
         return $this->transactions;
     }

@@ -84,7 +84,7 @@ class User implements UserInterface
         return $this;
     }
 
-    public function getTransactions(): Collection
+    public function getTransactions(): ArrayCollection|Collection
     {
         return $this->transactions;
     }
@@ -95,7 +95,7 @@ class User implements UserInterface
         return $this;
     }
 
-    public function getCategories(): Collection
+    public function getCategories(): ArrayCollection|Collection
     {
         return $this->categories;
     }

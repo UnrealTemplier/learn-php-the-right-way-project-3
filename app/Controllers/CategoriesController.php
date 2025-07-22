@@ -35,15 +35,14 @@ class CategoriesController
     public function store(Request $request, Response $response): Response
     {
         $data = $this->requestValidatorFactory->make(CreateCategoryRequestValidator::class)->validate(
-            $request->getParsedBody(),
+            $request->getParsedBody()
         );
 
-        if (!$this->categoryService->create($data['name'], $request->getAttribute('user'))) {
-            return $response->withStatus(422);
-        }
-        $this->entityManagerService->sync();
+        $category = $this->categoryService->create($data['name'], $request->getAttribute('user'));
 
-        return $response;
+        $this->entityManagerService->sync($category);
+
+        return $response->withHeader('Location', '/categories')->withStatus(302);
     }
 
     public function delete(Response $response, Category $category): Response
