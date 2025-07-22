@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use App\Contracts\EntityManagerServiceInterface;
 use App\Contracts\RequestValidatorFactoryInterface;
 use App\DataObjects\TransactionData;
 use App\Entity\Receipt;
@@ -26,6 +27,7 @@ class TransactionsController
         private readonly CategoryService                  $categoryService,
         private readonly ResponseFormatter                $responseFormatter,
         private readonly RequestService                   $requestService,
+        private readonly EntityManagerServiceInterface    $entityManagerService,
     ) {}
 
     public function index(Request $request, Response $response): Response
@@ -33,7 +35,9 @@ class TransactionsController
         return $this->twig->render(
             $response,
             'transactions/index.twig',
-            ['categories' => $this->categoryService->getCategoryNames()],
+            [
+                'categories' => $this->categoryService->getCategoryNames(),
+            ],
         );
     }
 
@@ -43,26 +47,25 @@ class TransactionsController
             $request->getParsedBody(),
         );
 
-        if (!$this->transactionService->create(
-            new TransactionData(
-                $data['description'],
-                (float)$data['amount'],
-                new \DateTime($data['date']),
-                $data['category'],
+        $this->entityManagerService->sync(
+            $this->transactionService->create(
+                new TransactionData(
+                    $data['description'],
+                    (float)$data['amount'],
+                    new \DateTime($data['date']),
+                    $data['category'],
+                ),
+                $request->getAttribute('user'),
             ),
-            $request->getAttribute('user'),
-        )) {
-            return $response->withStatus(422);
-        }
-        $this->transactionService->flush();
+        );
 
         return $response;
     }
 
     public function delete(Request $request, Response $response, array $args): Response
     {
-        $this->transactionService->delete((int)$args['id']);
-        $this->transactionService->flush();
+        $transaction = $this->transactionService->getById((int)$args['id']);
+        $this->entityManagerService->delete($transaction, true);
 
         return $response;
     }
@@ -97,16 +100,17 @@ class TransactionsController
             return $response->withStatus(404);
         }
 
-        $this->transactionService->update(
-            $transaction,
-            new TransactionData(
-                $data['description'],
-                (float)$data['amount'],
-                new \DateTime($data['date']),
-                $data['category'],
+        $this->entityManagerService->sync(
+            $this->transactionService->update(
+                $transaction,
+                new TransactionData(
+                    $data['description'],
+                    (float)$data['amount'],
+                    new \DateTime($data['date']),
+                    $data['category'],
+                ),
             ),
         );
-        $this->transactionService->flush();
 
         return $response;
     }
@@ -151,7 +155,7 @@ class TransactionsController
         }
 
         $this->transactionService->toggleReviewed($transaction);
-        $this->transactionService->flush();
+        $this->entityManagerService->sync();
 
         return $response;
     }

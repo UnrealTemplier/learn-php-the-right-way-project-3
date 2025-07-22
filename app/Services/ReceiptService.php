@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Contracts\EntityManagerServiceInterface;
 use App\Entity\Receipt;
 use App\Entity\Transaction;
 
-class ReceiptService extends EntityManagerService
+class ReceiptService
 {
+    public function __construct(private readonly EntityManagerServiceInterface $entityManager) {}
+
     public function create(
         Transaction $transaction,
         string      $filename,
@@ -23,18 +26,11 @@ class ReceiptService extends EntityManagerService
         $receipt->setTransaction($transaction);
         $receipt->setCreatedAt(new \DateTime());
 
-        $this->entityManager->persist($receipt);
-
         return $receipt;
     }
 
     public function getById(int $id): ?Receipt
     {
         return $this->entityManager->find(Receipt::class, $id);
-    }
-
-    public function delete(int $id): void
-    {
-        $this->entityManager->remove($this->entityManager->find(Receipt::class, $id));
     }
 }

@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use App\Contracts\EntityManagerServiceInterface;
 use App\Entity\Category;
 use Bezhanov\Faker\Provider\Commerce;
-use Doctrine\ORM\EntityManagerInterface;
 use Faker\Factory;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 class PopulateDbWithFakesController
 {
-    public function __construct(private readonly EntityManagerInterface $entityManager) {}
+    public function __construct(private readonly EntityManagerServiceInterface $entityManagerService) {}
 
     public function populateCategories(Request $request, Response $response): Response
     {
@@ -26,10 +26,10 @@ class PopulateDbWithFakesController
             $category = new Category();
             $category->setUser($user);
             $category->setName($faker->unique()->word());
-            $this->entityManager->persist($category);
+            $this->entityManagerService->persist($category);
         }
 
-        $this->entityManager->flush();
+        $this->entityManagerService->sync();
 
         return $response;
     }

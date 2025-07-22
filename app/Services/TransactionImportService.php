@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Contracts\EntityManagerServiceInterface;
 use App\Contracts\UserInterface;
 use App\DataObjects\TransactionData;
 use App\Entity\Transaction;
@@ -11,9 +12,9 @@ use App\Entity\Transaction;
 class TransactionImportService
 {
     public function __construct(
-        private readonly CategoryService      $categoryService,
-        private readonly TransactionService   $transactionService,
-        private readonly EntityManagerService $entityManagerService,
+        private readonly CategoryService               $categoryService,
+        private readonly TransactionService            $transactionService,
+        private readonly EntityManagerServiceInterface $entityManagerService,
     ) {}
 
     public function importFromFile(string $filePath, UserInterface $user): void
@@ -34,10 +35,12 @@ class TransactionImportService
 
             $transactionData = new TransactionData($description, (float)$amount, $date, $category);
 
-            $this->transactionService->create($transactionData, $user);
+            $this->entityManagerService->persist(
+                $this->transactionService->create($transactionData, $user),
+            );
 
             if ($count % $batchSize === 0) {
-                $this->entityManagerService->flush();
+                $this->entityManagerService->sync();
                 $this->entityManagerService->clear(Transaction::class);
 
                 $count = 1;
@@ -47,7 +50,7 @@ class TransactionImportService
         }
 
         if ($count > 1) {
-            $this->entityManagerService->flush();
+            $this->entityManagerService->sync();
             $this->entityManagerService->clear();
         }
     }

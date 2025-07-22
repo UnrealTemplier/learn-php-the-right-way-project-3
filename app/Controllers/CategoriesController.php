@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use App\Contracts\EntityManagerServiceInterface;
 use App\Contracts\RequestValidatorFactoryInterface;
 use App\Entity\Category;
 use App\RequestValidators\Category\CreateCategoryRequestValidator;
@@ -23,6 +24,7 @@ class CategoriesController
         private readonly CategoryService                  $categoryService,
         private readonly ResponseFormatter                $responseFormatter,
         private readonly RequestService                   $requestService,
+        private readonly EntityManagerServiceInterface    $entityManagerService,
     ) {}
 
     public function index(Request $request, Response $response): Response
@@ -39,15 +41,15 @@ class CategoriesController
         if (!$this->categoryService->create($data['name'], $request->getAttribute('user'))) {
             return $response->withStatus(422);
         }
-        $this->categoryService->flush();
+        $this->entityManagerService->sync();
 
         return $response;
     }
 
     public function delete(Request $request, Response $response, array $args): Response
     {
-        $this->categoryService->delete((int)$args['id']);
-        $this->categoryService->flush();
+        $category = $this->categoryService->getById((int)$args['id']);
+        $this->entityManagerService->delete($category, true);
 
         return $response;
     }
@@ -77,8 +79,9 @@ class CategoriesController
             return $response->withStatus(404);
         }
 
-        $this->categoryService->update($category, $data['name']);
-        $this->categoryService->flush();
+        $this->entityManagerService->sync(
+            $this->categoryService->update($category, $data['name']),
+        );
 
         return $response;
     }

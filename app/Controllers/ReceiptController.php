@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use App\Contracts\EntityManagerServiceInterface;
 use App\Contracts\RequestValidatorFactoryInterface;
 use App\RequestValidators\Transaction\UploadReceiptRequestValidator;
 use App\Services\ReceiptService;
@@ -21,6 +22,7 @@ class ReceiptController
         private readonly RequestValidatorFactoryInterface $requestValidatorFactory,
         private readonly TransactionService               $transactionService,
         private readonly ReceiptService                   $receiptService,
+        private readonly EntityManagerServiceInterface    $entityManagerService,
     ) {}
 
     public function store(Request $request, Response $response, array $args): Response
@@ -41,8 +43,9 @@ class ReceiptController
 
         $this->filesystem->write('receipts/' . $randomFilename, $file->getStream()->getContents());
 
-        $this->receiptService->create($transaction, $filename, $randomFilename, $file->getClientMediaType());
-        $this->receiptService->flush();
+        $this->entityManagerService->sync(
+            $this->receiptService->create($transaction, $filename, $randomFilename, $file->getClientMediaType()),
+        );
 
         return $response;
     }
@@ -61,7 +64,7 @@ class ReceiptController
 
         $response = $response->withHeader(
             'Content-Disposition',
-            'inline; filename="' . $receipt->getFilename() . '"'
+            'inline; filename="' . $receipt->getFilename() . '"',
         )->withHeader('Content-Type', $receipt->getMediaType());
 
         return $response->withBody(new Stream($file));
@@ -79,8 +82,7 @@ class ReceiptController
 
         $this->filesystem->delete($receipt->getStorageFilename());
 
-        $this->receiptService->delete($receiptId);
-        $this->receiptService->flush();
+        $this->entityManagerService->delete($receiptId, true);
 
         return $response;
     }
