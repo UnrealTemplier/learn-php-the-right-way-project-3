@@ -10,10 +10,17 @@ window.addEventListener('DOMContentLoaded', function () {
 
 function createDataTable() {
     return new DataTable('#transactionsTable', {
-        serverSide: true,
-        ajax      : '/transactions/load',
-        orderMulti: false,
-        columns   :
+        serverSide : true,
+        ajax       : '/transactions/load',
+        orderMulti : false,
+        rowCallback: (row, data) => {
+            if (!data.wasReviewed) {
+                row.classList.add('fw-bold')
+            }
+
+            return row
+        },
+        columns    :
             [
                 {data: "description"},
                 {
@@ -64,17 +71,34 @@ function createDataTable() {
                 },
                 {data: "date"},
                 {
-                    sortable: false, data: row => `
-                    <div class="d-flex flex-row">
-                        <button type="submit" class="btn btn-outline-primary delete-transaction-btn" data-id="${row.id}">
-                            <i class="bi bi-trash3-fill"></i>
-                        </button>
-                        <button class="ms-2 btn btn-outline-primary edit-transaction-btn" data-id="${row.id}">
-                            <i class="bi bi-pencil-fill"></i>
-                        </button>
-                        <button class="ms-2 btn btn-outline-primary open-receipt-upload-btn" data-id="${row.id}">
-                            <i class="bi bi-upload"></i>
-                        </button>
+                    sortable: false,
+                    data    : row => `
+                    <div class="d-flex gap-2">
+                        <div>
+                            <i class="bi ${row.wasReviewed ? 'bi-check-circle-fill text-success' : 'bi-check-circle'} toggle-reviewed-btn fs-4" 
+                                role="button" data-id="${row.id}"></i>
+                        </div>
+                        <div class="dropdown">
+                            <i class="bi bi-gear fs-4" role="button" data-bs-toggle="dropdown"></i>
+
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item open-receipt-upload-btn" href="#" data-id="${row.id}">
+                                        <i class="bi bi-upload"></i> Upload Receipt
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item edit-transaction-btn" href="#" data-id="${row.id}">
+                                        <i class="bi bi-pencil-fill"></i> Edit
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item delete-transaction-btn" href="#" data-id="${row.id}">
+                                        <i class="bi bi-trash3-fill"></i> Delete
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 `
                 }
@@ -96,6 +120,8 @@ function addListeners(table) {
     addDeleteReceiptListener(table)
 
     addImportTransactionsListener(table, importTransactionsModal)
+
+    addToggleReviewedListener(table)
 }
 
 function addNewTransactionListener(table, newTransactionModal) {
@@ -247,6 +273,22 @@ function addImportTransactionsListener(table, importTransactionsModal) {
                     importTransactionsModal.hide()
                 }
             })
+    })
+}
+
+function addToggleReviewedListener(table) {
+    document.querySelector('#transactionsTable').addEventListener('click', function (event) {
+        const toggleReviewedBtn = event.target.closest('.toggle-reviewed-btn')
+
+        if (toggleReviewedBtn) {
+            const transactionId = toggleReviewedBtn.getAttribute('data-id')
+
+            post(`/transactions/${transactionId}/review`).then(response => {
+                if (response.ok) {
+                    table.draw()
+                }
+            })
+        }
     })
 }
 
