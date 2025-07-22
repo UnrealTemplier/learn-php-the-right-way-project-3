@@ -10,9 +10,11 @@ $appEnv       = $_ENV['APP_ENV'] ?? AppEnvironment::Production->value;
 $appSnakeName = strtolower(str_replace(' ', '_', $_ENV['APP_NAME']));
 
 return [
+    'app_key'               => $_ENV['APP_KEY'] ?? '',
     'app_name'              => $_ENV['APP_NAME'],
     'app_version'           => $_ENV['APP_VERSION'] ?? '1.0',
     'app_environment'       => $appEnv,
+    'app_url'               => $_ENV['APP_URL'],
     'display_error_details' => (bool)($_ENV['APP_DEBUG'] ?? 0),
     'log_errors'            => true,
     'log_error_details'     => true,
@@ -38,5 +40,9 @@ return [
     ],
     'storage'               => [
         'driver' => StorageDriver::Local,
+    ],
+    'mailer'                => [
+        'dsn'  => $_ENV['MAILER_DSN'],
+        'from' => $_ENV['MAILER_FROM'],
     ],
 ];

@@ -37,3 +37,12 @@ services:
     ports:
       - "3306:3306"
 #    user: ${WWWUSER:-1000}:${WWWGROUP:-1000}
+  mailhog:
+    container_name: expennies-mailhog
+    image: mailhog/mailhog
+    restart: always
+    logging:
+      driver: "none"
+    ports:
+      - "8025:8025"
+      - "1025:1025"

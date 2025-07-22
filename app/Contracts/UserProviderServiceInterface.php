@@ -14,4 +14,6 @@ interface UserProviderServiceInterface
     public function getByCredentials(LoginData $credentials): ?UserInterface;
 
     public function create(RegisterUserData $data): ?UserInterface;
+
+    public function verifyUser(UserInterface $user): void;
 }

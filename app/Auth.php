@@ -9,6 +9,7 @@ use App\Contracts\UserInterface;
 use App\Contracts\UserProviderServiceInterface;
 use App\DataObjects\LoginData;
 use App\DataObjects\RegisterUserData;
+use App\Mail\SignupEmail;
 
 class Auth implements Contracts\AuthInterface
 {
@@ -17,6 +18,7 @@ class Auth implements Contracts\AuthInterface
     public function __construct(
         private readonly UserProviderServiceInterface $userProvider,
         private readonly SessionInterface             $session,
+        private readonly SignupEmail                  $signupEmail,
     ) {}
 
     public function user(): ?UserInterface
@@ -76,6 +78,8 @@ class Auth implements Contracts\AuthInterface
         }
 
         $this->login($user);
+
+        $this->signupEmail->send($user);
 
         return $user;
     }
