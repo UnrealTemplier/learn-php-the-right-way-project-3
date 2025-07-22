@@ -124,6 +124,7 @@ class TransactionsController
                 'date'        => $transaction->getDate()->format('m/d/Y g:i A'),
                 'amount'      => $transaction->getAmount(),
                 'category'    => $transaction->getCategory()?->getName(),
+                'wasReviewed' => $transaction->wasReviewed(),
                 'receipts'    => $transaction->getReceipts()->map(fn(Receipt $receipt)
                     => [
                     'name' => $receipt->getFilename(),
@@ -140,5 +141,18 @@ class TransactionsController
             $params->draw,
             $totalTransactions,
         );
+    }
+
+    public function toggleReviewed(Request $request, Response $response, array $args): Response
+    {
+        $id = (int)$args['id'];
+        if (!$id || !($transaction = $this->transactionService->getById($id))) {
+            return $response->withStatus(404);
+        }
+
+        $this->transactionService->toggleReviewed($transaction);
+        $this->transactionService->flush();
+
+        return $response;
     }
 }

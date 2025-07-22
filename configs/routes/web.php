@@ -46,6 +46,7 @@ return function (App $app) {
         $transactions->post('', [TransactionsController::class, 'store']);
         $transactions->get('/{id:[0-9]+}', [TransactionsController::class, 'get']);
         $transactions->post('/{id:[0-9]+}', [TransactionsController::class, 'update']);
+        $transactions->post('/{id:[0-9]+}/review', [TransactionsController::class, 'toggleReviewed']);
         $transactions->delete('/{id:[0-9]+}', [TransactionsController::class, 'delete']);
         $transactions->post('/{id:[0-9]+}/receipts', [ReceiptController::class, 'store']);
         $transactions->get('/{transactionId:[0-9]+}/receipts/{id:[0-9]+}', [ReceiptController::class, 'download']);
