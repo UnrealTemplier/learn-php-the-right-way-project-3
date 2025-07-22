@@ -8,13 +8,10 @@ use App\Contracts\UserInterface;
 use App\DataObjects\DataTableQueryParams;
 use App\DataObjects\TransactionData;
 use App\Entity\Transaction;
-use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 
-class TransactionService
+class TransactionService extends EntityManagerService
 {
-    public function __construct(private readonly EntityManager $entityManager) {}
-
     public function create(TransactionData $data, UserInterface $user): Transaction
     {
         $transaction = new Transaction();
@@ -26,7 +23,6 @@ class TransactionService
     public function delete(int $id): void
     {
         $this->entityManager->remove($this->entityManager->find(Transaction::class, $id));
-        $this->entityManager->flush();
     }
 
     public function getPaginatedTransactions(DataTableQueryParams $params): Paginator
@@ -40,7 +36,8 @@ class TransactionService
             ->setFirstResult($params->start)
             ->setMaxResults($params->length);
 
-        $orderBy  = in_array($params->orderBy, ['description', 'date', 'amount', 'category']) ? $params->orderBy : 'date';
+        $orderBy  = in_array($params->orderBy, ['description', 'date', 'amount', 'category'],
+        ) ? $params->orderBy : 'date';
         $orderDir = strtolower($params->orderDir) === 'asc' ? 'asc' : 'desc';
 
         if (!empty($params->searchTerm)) {
@@ -71,7 +68,6 @@ class TransactionService
         $transaction->setCategory($data->category);
 
         $this->entityManager->persist($transaction);
-        $this->entityManager->flush();
 
         return $transaction;
     }

@@ -7,13 +7,10 @@ namespace App\Services;
 use App\Contracts\UserInterface;
 use App\DataObjects\DataTableQueryParams;
 use App\Entity\Category;
-use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 
-class CategoryService
+class CategoryService extends EntityManagerService
 {
-    public function __construct(private readonly EntityManager $entityManager) {}
-
     public function create(string $name, UserInterface $user): Category
     {
         $category = new Category();
@@ -25,7 +22,6 @@ class CategoryService
     public function delete(int $id): void
     {
         $this->entityManager->remove($this->entityManager->find(Category::class, $id));
-        $this->entityManager->flush();
     }
 
     public function getPaginatedCategories(DataTableQueryParams $params): Paginator
@@ -40,7 +36,10 @@ class CategoryService
         $orderDir = strtolower($params->orderDir) === 'asc' ? 'asc' : 'desc';
 
         if (!empty($params->searchTerm)) {
-            $query->where('c.name LIKE :name')->setParameter('name', '%' . addcslashes($params->searchTerm, '%_') . '%');
+            $query->where('c.name LIKE :name')->setParameter(
+                'name',
+                '%' . addcslashes($params->searchTerm, '%_') . '%',
+            );
         }
 
         $query->orderBy('c.' . $orderBy, $orderDir);
@@ -58,7 +57,6 @@ class CategoryService
         $category->setName($name);
 
         $this->entityManager->persist($category);
-        $this->entityManager->flush();
 
         return $category;
     }
@@ -79,7 +77,7 @@ class CategoryService
 
     public function getAllKeyedByName(): array
     {
-        $categories = $this->entityManager->getRepository(Category::class)->findAll();
+        $categories  = $this->entityManager->getRepository(Category::class)->findAll();
         $categoryMap = [];
 
         foreach ($categories as $category) {

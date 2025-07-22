@@ -54,6 +54,7 @@ class TransactionsController
         )) {
             return $response->withStatus(422);
         }
+        $this->transactionService->flush();
 
         return $response;
     }
@@ -61,6 +62,7 @@ class TransactionsController
     public function delete(Request $request, Response $response, array $args): Response
     {
         $this->transactionService->delete((int)$args['id']);
+        $this->transactionService->flush();
 
         return $response;
     }
@@ -104,6 +106,7 @@ class TransactionsController
                 $data['category'],
             ),
         );
+        $this->transactionService->flush();
 
         return $response;
     }

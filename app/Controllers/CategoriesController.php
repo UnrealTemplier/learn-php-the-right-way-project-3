@@ -39,6 +39,7 @@ class CategoriesController
         if (!$this->categoryService->create($data['name'], $request->getAttribute('user'))) {
             return $response->withStatus(422);
         }
+        $this->categoryService->flush();
 
         return $response;
     }
@@ -46,6 +47,7 @@ class CategoriesController
     public function delete(Request $request, Response $response, array $args): Response
     {
         $this->categoryService->delete((int)$args['id']);
+        $this->categoryService->flush();
 
         return $response;
     }
@@ -76,6 +78,7 @@ class CategoriesController
         }
 
         $this->categoryService->update($category, $data['name']);
+        $this->categoryService->flush();
 
         return $response;
     }

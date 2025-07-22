@@ -6,14 +6,14 @@ namespace App\Controllers;
 
 use App\Entity\Category;
 use Bezhanov\Faker\Provider\Commerce;
-use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Faker\Factory;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 class PopulateDbWithFakesController
 {
-    public function __construct(private readonly EntityManager $entityManager) {}
+    public function __construct(private readonly EntityManagerInterface $entityManager) {}
 
     public function populateCategories(Request $request, Response $response): Response
     {
@@ -22,7 +22,7 @@ class PopulateDbWithFakesController
 
         $user = $request->getAttribute('user');
 
-        for ($i = 0; $i < 55; $i++) {
+        for ($i = 0; $i < 10; $i++) {
             $category = new Category();
             $category->setUser($user);
             $category->setName($faker->unique()->word());
