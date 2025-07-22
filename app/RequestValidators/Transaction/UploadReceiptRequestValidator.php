@@ -6,7 +6,6 @@ namespace App\RequestValidators\Transaction;
 
 use App\Contracts\RequestValidatorInterface;
 use App\Exception\ValidationException;
-use finfo;
 use League\MimeTypeDetection\FinfoMimeTypeDetector;
 use Psr\Http\Message\UploadedFileInterface;
 
@@ -57,8 +56,8 @@ class UploadReceiptRequestValidator implements RequestValidatorInterface
 
     private function validateFileType(UploadedFileInterface $uploadedFile): void
     {
-        $allowedMimeTypes  = ['image/jpeg', 'image/png', 'application/pdf'];
-        $tmpFilePath       = $uploadedFile->getStream()->getMetadata('uri');
+        $allowedMimeTypes = ['image/jpeg', 'image/png', 'application/pdf'];
+        $tmpFilePath      = $uploadedFile->getStream()->getMetadata('uri');
 
         if (!in_array($uploadedFile->getClientMediaType(), $allowedMimeTypes)) {
             throw new ValidationException(['receipt' => ['Receipt has to be either an image or a pdf document']]);
