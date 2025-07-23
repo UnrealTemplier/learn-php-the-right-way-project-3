@@ -46,7 +46,7 @@ return function (App $app) {
     })->add(VerifyEmailMiddleware::class)->add(AuthMiddleware::class);
 
     $app->group('', function (RouteCollectorProxy $group) {
-        $group->post('/logout', [AuthController::class, 'logOut']);
+        $group->post('/logout', [AuthController::class, 'logout']);
         $group->get('/verify', [VerifyController::class, 'index']);
         $group
             ->get('/verify/{id}/{hash}', [VerifyController::class, 'verify'])
@@ -61,6 +61,7 @@ return function (App $app) {
             $guest->get('/register', [AuthController::class, 'registerView']);
             $guest->post('/login', [AuthController::class, 'login']);
             $guest->post('/register', [AuthController::class, 'register']);
+            $guest->post('/login/two-factor', [AuthController::class, 'twoFactorLogin']);
         });
     })->add(GuestMiddleware::class);
 
