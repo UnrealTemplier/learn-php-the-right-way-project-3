@@ -18,13 +18,14 @@ class SignedUrl
         $expiration  = $expirationDate->getTimestamp();
         $queryParams = ['expiration' => $expiration];
         $baseUrl     = trim($this->config->get('app_url'), '/');
-        $url         = $baseUrl . $this->routeParser->urlFor('verify', $routeParams, $queryParams);
-        $signature   = hash_hmac('sha256', $url, $this->config->get('app_key'));
+        $url         = $baseUrl . $this->routeParser->urlFor($routeName, $routeParams, $queryParams);
+
+        $signature = hash_hmac('sha256', $url, $this->config->get('app_key'));
 
         return $baseUrl . $this->routeParser->urlFor(
-                'verify',
+                $routeName,
                 $routeParams,
-                $queryParams + ['signature' => $signature],
+                $queryParams + ['signature' => $signature]
             );
     }
 }

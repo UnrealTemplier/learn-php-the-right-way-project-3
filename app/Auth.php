@@ -68,7 +68,7 @@ class Auth implements Contracts\AuthInterface
 
     public function attemptLogin(LoginData $credentials): AuthAttemptStatus
     {
-        $user = $this->userProvider->getByCredentials($credentials);
+        $user = $this->userProvider->getByCredentials($credentials->email);
 
         if (!$user || !$this->check_credentials($user, $credentials)) {
             return AuthAttemptStatus::FAILED;

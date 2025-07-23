@@ -11,7 +11,7 @@ interface UserProviderServiceInterface
 {
     public function getById(int $userId): ?UserInterface;
 
-    public function getByCredentials(LoginData $credentials): ?UserInterface;
+    public function getByCredentials(string $email): ?UserInterface;
 
     public function create(RegisterUserData $data): ?UserInterface;
 

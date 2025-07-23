@@ -13,16 +13,19 @@ use App\Entity\User;
 
 class UserProviderService implements UserProviderServiceInterface
 {
-    public function __construct(private readonly EntityManagerServiceInterface $entityManager) {}
+    public function __construct(
+        private readonly EntityManagerServiceInterface $entityManager,
+        private readonly HashService                   $hashService
+    ) {}
 
     public function getById(int $userId): ?UserInterface
     {
         return $this->entityManager->find(User::class, $userId);
     }
 
-    public function getByCredentials(LoginData $credentials): ?UserInterface
+    public function getByCredentials(string $email): ?UserInterface
     {
-        return $this->entityManager->getRepository(User::class)->findOneBy(['email' => $credentials->email]);
+        return $this->entityManager->getRepository(User::class)->findOneBy(['email' => $email]);
     }
 
     public function create(RegisterUserData $data): ?UserInterface
@@ -30,7 +33,7 @@ class UserProviderService implements UserProviderServiceInterface
         $user = new User();
         $user->setName($data->name);
         $user->setEmail($data->email);
-        $user->setPassword(password_hash($data->password, PASSWORD_BCRYPT, ['cost' => 12]));
+        $user->setPassword($this->hashService->hashPassword($data->password));
 
         $this->entityManager->sync($user);
 
