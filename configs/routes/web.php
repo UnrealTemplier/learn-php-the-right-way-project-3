@@ -5,7 +5,9 @@ declare(strict_types=1);
 use App\Controllers\AuthController;
 use App\Controllers\CategoriesController;
 use App\Controllers\HomeController;
+use App\Controllers\PasswordResetController;
 use App\Controllers\PopulateDbWithFakesController;
+use App\Controllers\ProfileController;
 use App\Controllers\ReceiptController;
 use App\Controllers\TransactionImporterController;
 use App\Controllers\TransactionsController;
@@ -43,6 +45,11 @@ return function (App $app) {
             $transactions->get('/{transaction}/receipts/{receipt}', [ReceiptController::class, 'download']);
             $transactions->delete('/{transaction}/receipts/{receipt}', [ReceiptController::class, 'delete']);
         });
+
+        $group->group('/profile', function (RouteCollectorProxy $profile) {
+            $profile->get('', [ProfileController::class, 'index']);
+            $profile->post('', [ProfileController::class, 'update']);
+        });
     })->add(VerifyEmailMiddleware::class)->add(AuthMiddleware::class);
 
     $app->group('', function (RouteCollectorProxy $group) {
@@ -62,6 +69,8 @@ return function (App $app) {
             $guest->post('/login', [AuthController::class, 'login']);
             $guest->post('/register', [AuthController::class, 'register']);
             $guest->post('/login/two-factor', [AuthController::class, 'twoFactorLogin']);
+            $guest->get('/forgot-password', [PasswordResetController::class, 'showForgotPasswordForm']);
+            $guest->post('/forgot-password', [PasswordResetController::class, 'handleForgotPasswordRequest']);
         });
     })->add(GuestMiddleware::class);
 

@@ -35,6 +35,9 @@ class User implements UserInterface
     #[Column]
     private string $password;
 
+    #[Column(name: 'two_factor', options: ['default' => false])]
+    private bool $twoFactor;
+
     #[Column(name: 'verified_at', nullable: true)]
     private ?\DateTime $verifiedAt;
 
@@ -128,8 +131,12 @@ class User implements UserInterface
 
     public function hasTwoFactorAuthEnabled(): bool
     {
-        // TODO:
+        return $this->twoFactor;
+    }
 
-        return true;
+    public function setTwoFactor(bool $twoFactor): User
+    {
+        $this->twoFactor = $twoFactor;
+        return $this;
     }
 }
