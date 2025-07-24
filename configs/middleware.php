@@ -9,8 +9,8 @@ use App\Middleware\OldFormDataMiddleware;
 use App\Middleware\StartSessionMiddleware;
 use App\Middleware\ValidationErrorsMiddleware;
 use App\Middleware\ValidationExceptionMiddleware;
-use Clockwork\Clockwork;
-use Clockwork\Support\Slim\ClockworkMiddleware;
+use Clockwork\Support\Vanilla\Clockwork;
+use Clockwork\Support\Vanilla\ClockworkMiddleware;
 use Slim\App;
 use Slim\Middleware\BodyParsingMiddleware;
 use Slim\Middleware\MethodOverrideMiddleware;
@@ -31,7 +31,8 @@ return function (App $app) {
     $app->add(StartSessionMiddleware::class);
 
     if (AppEnvironment::isDevelopment($config->get('app_environment'))) {
-        $app->add(new ClockworkMiddleware($app, $container->get(Clockwork::class)));
+        //$app->add(new ClockworkMiddleware($app, $container->get(Clockwork::class)));
+        $app->add(new ClockworkMiddleware($container->get(Clockwork::class))->withResponseFactory($app->getResponseFactory()));
     }
 
     $app->add(BodyParsingMiddleware::class);

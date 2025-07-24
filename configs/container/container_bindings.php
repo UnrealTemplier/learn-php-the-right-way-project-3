@@ -82,7 +82,7 @@ return [
 
     Config::class => create(Config::class)->constructor(require CONFIG_PATH . '/app.php'),
 
-    EntityManagerInterface::class => function (Config $config) {
+    EntityManagerInterface::class => function (Config $config, Clockwork $clockwork) {
         $ormConfig = ORMSetup::createAttributeMetadataConfiguration(
             $config->get('doctrine.entity_dir'),
             $config->get('doctrine.dev_mode'),
@@ -101,6 +101,9 @@ return [
         if (class_exists('DoctrineExtensions\Query\Mysql\DateFormat')) {
             $ormConfig->addCustomStringFunction('DATE_FORMAT', DateFormat::class);
         }
+
+        $clockwork->addDataSource($dataSource = new DoctrineDataSource());
+        $ormConfig->setMiddlewares(array_merge($ormConfig->getMiddlewares(), [$dataSource->middleware()]));
 
         return new EntityManager(
             DriverManager::getConnection($config->get('doctrine.connection'), $ormConfig),
@@ -169,10 +172,10 @@ return [
         return new League\Flysystem\Filesystem($adapter);
     },
 
-    Clockwork::class => function (EntityManagerInterface $entityManager) {
+    Clockwork::class => function () {
         $clockwork = new Clockwork();
         $clockwork->storage(new FileStorage(STORAGE_PATH . '/clockwork'));
-        $clockwork->addDataSource(new DoctrineDataSource($entityManager));
+        //$clockwork->addDataSource(new DoctrineDataSource($entityManager));
         return $clockwork;
     },
 
