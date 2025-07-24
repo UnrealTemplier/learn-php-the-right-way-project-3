@@ -18,7 +18,7 @@ services:
       - ../:/var/www
       - ./local.ini:/usr/local/etc/php/conf.d/local.ini
   nginx:
-    image: nginx:1.29-alpine
+    image: nginx:alpine
     container_name: expennies-nginx
     restart: always
     ports:
@@ -28,7 +28,7 @@ services:
       - ./nginx:/etc/nginx/conf.d
   db:
     container_name: expennies-db
-    image: mysql:9.3
+    image: mysql:9
     volumes:
       - ./storage/mysql:/var/lib/mysql
     restart: always
