@@ -22,7 +22,8 @@ use Slim\Routing\RouteCollectorProxy;
 
 return function (App $app) {
     $app->group('', function (RouteCollectorProxy $group) {
-        $group->get('/', [HomeController::class, 'index'])->setName('home');;
+        $group->get('/', [HomeController::class, 'index'])->setName('home');
+        $group->get('/stats/ytd', [HomeController::class, 'getYearToDateStatistics']);
 
         $group->group('/categories', function (RouteCollectorProxy $categories) {
             $categories->get('', [CategoriesController::class, 'index'])->setName('categories');
