@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Auth;
+use App\Clockwork\DataSource\DoctrineDataSource;
 use App\Config;
 use App\Contracts\AuthInterface;
 use App\Contracts\EntityManagerServiceInterface;
@@ -21,7 +22,6 @@ use App\Services\EntityManagerService;
 use App\Services\UserProviderService;
 use App\Session;
 use Clockwork\Clockwork;
-use Clockwork\DataSource\DoctrineDataSource;
 use Clockwork\Storage\FileStorage;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\ORM\EntityManager;
@@ -82,7 +82,9 @@ return [
 
     Config::class => create(Config::class)->constructor(require CONFIG_PATH . '/app.php'),
 
-    EntityManagerInterface::class => function (Config $config, Clockwork $clockwork) {
+    DoctrineDataSource::class => fn() => new DoctrineDataSource(),
+
+    EntityManagerInterface::class => function (Config $config, DoctrineDataSource $dataSource) {
         $ormConfig = ORMSetup::createAttributeMetadataConfiguration(
             $config->get('doctrine.entity_dir'),
             $config->get('doctrine.dev_mode'),
@@ -102,13 +104,16 @@ return [
             $ormConfig->addCustomStringFunction('DATE_FORMAT', DateFormat::class);
         }
 
-        $clockwork->addDataSource($dataSource = new DoctrineDataSource());
         $ormConfig->setMiddlewares(array_merge($ormConfig->getMiddlewares(), [$dataSource->middleware()]));
 
-        return new EntityManager(
+        $em = new EntityManager(
             DriverManager::getConnection($config->get('doctrine.connection'), $ormConfig),
             $ormConfig,
         );
+
+        $dataSource->setConnection($em->getConnection());
+
+        return $em;
     },
 
     EntityManagerServiceInterface::class =>
@@ -172,10 +177,10 @@ return [
         return new League\Flysystem\Filesystem($adapter);
     },
 
-    Clockwork::class => function () {
+    Clockwork::class => function (EntityManagerInterface $entityManager, ContainerInterface $container) {
         $clockwork = new Clockwork();
         $clockwork->storage(new FileStorage(STORAGE_PATH . '/clockwork'));
-        //$clockwork->addDataSource(new DoctrineDataSource($entityManager));
+        $clockwork->addDataSource($container->get(DoctrineDataSource::class));
         return $clockwork;
     },
 
