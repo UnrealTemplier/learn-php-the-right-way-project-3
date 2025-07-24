@@ -34,6 +34,7 @@
     "symfony/cache": "^6.4.23",
     "symfony/console": "^6.4.23",
     "symfony/mailer": "^6.4",
+    "symfony/rate-limiter": "^6.4",
     "symfony/twig-bridge": "^6.4.22",
     "symfony/webpack-encore-bundle": "^1.17.2",
     "twig/intl-extra": "^3.21",
