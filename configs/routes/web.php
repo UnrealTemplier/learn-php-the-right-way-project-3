@@ -49,16 +49,16 @@ return function (App $app) {
         $group->group('/profile', function (RouteCollectorProxy $profile) {
             $profile->get('', [ProfileController::class, 'index']);
             $profile->post('', [ProfileController::class, 'update']);
+            $profile->post('/update-password', [ProfileController::class, 'updatePassword']);
         });
     })->add(VerifyEmailMiddleware::class)->add(AuthMiddleware::class);
 
     $app->group('', function (RouteCollectorProxy $group) {
         $group->post('/logout', [AuthController::class, 'logout']);
         $group->get('/verify', [VerifyController::class, 'index']);
-        $group
-            ->get('/verify/{id}/{hash}', [VerifyController::class, 'verify'])
-            ->setName('verify')
-            ->add(ValidateSignatureMiddleware::class);
+        $group->get('/verify/{id}/{hash}', [VerifyController::class, 'verify'])
+              ->setName('verify')
+              ->add(ValidateSignatureMiddleware::class);
         $group->post('/verify', [VerifyController::class, 'resend']);
     })->add(AuthMiddleware::class);
 

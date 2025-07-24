@@ -1,7 +1,9 @@
 import {post} from './ajax';
+import {Modal} from "bootstrap";
 
 window.addEventListener('DOMContentLoaded', function () {
-    const saveProfileBtn = document.querySelector('.save-profile')
+    const saveProfileBtn    = document.querySelector('.save-profile')
+    const updatePasswordBtn = document.querySelector('.update-password')
 
     saveProfileBtn.addEventListener('click', function () {
         const form     = this.closest('form')
@@ -18,6 +20,26 @@ window.addEventListener('DOMContentLoaded', function () {
             }
         }).catch(() => {
             saveProfileBtn.classList.remove('disabled')
+        })
+    })
+
+    updatePasswordBtn.addEventListener('click', function () {
+        const updatePasswordModal = Modal.getOrCreateInstance(document.getElementById('updatePasswordModal'))
+        const form                = document.getElementById('passwordForm')
+        const formData            = new FormData(form);
+        const data                = Object.fromEntries(formData.entries());
+
+        updatePasswordBtn.classList.add('disabled')
+
+        post('/profile/update-password', data, form).then(response => {
+            updatePasswordBtn.classList.remove('disabled')
+
+            if (response.ok) {
+                alert('Password has been updated.')
+                updatePasswordModal.hide()
+            }
+        }).catch(() => {
+            updatePasswordBtn.classList.remove('disabled')
         })
     })
 })
