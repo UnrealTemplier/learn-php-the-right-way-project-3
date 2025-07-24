@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Auth;
 use App\Clockwork\DataSource\DoctrineDataSource;
+use App\Clockwork\Support\Vanilla\Clockwork;
 use App\Config;
 use App\Contracts\AuthInterface;
 use App\Contracts\EntityManagerServiceInterface;
@@ -21,7 +22,6 @@ use App\RouteEntityBindingStrategy;
 use App\Services\EntityManagerService;
 use App\Services\UserProviderService;
 use App\Session;
-use Clockwork\Clockwork;
 use Clockwork\Storage\FileStorage;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\ORM\EntityManager;
@@ -178,8 +178,7 @@ return [
     },
 
     Clockwork::class => function (EntityManagerInterface $entityManager, ContainerInterface $container) {
-        $clockwork = new Clockwork();
-        $clockwork->storage(new FileStorage(STORAGE_PATH . '/clockwork'));
+        $clockwork = Clockwork::init(['storage_files_path' => STORAGE_PATH . '/clockwork']);
         $clockwork->addDataSource($container->get(DoctrineDataSource::class));
         return $clockwork;
     },
