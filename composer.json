@@ -14,9 +14,10 @@
     "optimize-autoloader": true
   },
   "require": {
-    "ext-fileinfo": "*",
     "ext-pdo": "*",
+    "ext-fileinfo": "*",
     "ext-redis": "*",
+    "ext-xdebug": "*",
     "beberlei/doctrineextensions": "dev-master",
     "doctrine/dbal": "^3.10",
     "doctrine/migrations": "^3.9.1",
