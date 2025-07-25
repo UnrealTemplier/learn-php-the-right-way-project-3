@@ -72,7 +72,7 @@ function addEditCategoryListener(table, editCategoryModal) {
             name: editCategoryModal._element.querySelector('input[name="name"]').value
         }, editCategoryModal._element).then(response => {
             if (response.ok) {
-                table.draw()
+                table.draw(false)
                 editCategoryModal.hide()
             }
         })
@@ -89,7 +89,7 @@ function addDeleteCategoryListener(table) {
             if (confirm('Are you sure you want to delete this category?')) {
                 del(`/categories/${categoryId}`).then((response) => {
                     if (response.ok) {
-                        table.draw()
+                        table.draw(false)
                     }
                 })
             }

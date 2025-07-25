@@ -159,7 +159,7 @@ function addEditTransactionListener(table, editTransactionModal) {
         post(`/transactions/${transactionId}`, getTransactionData(editTransactionModal), editTransactionModal._element)
             .then(response => {
                 if (response.ok) {
-                    table.draw()
+                    table.draw(false)
                     editTransactionModal.hide()
                 }
             })
@@ -211,7 +211,7 @@ function addUploadReceiptListener(table, uploadReceiptModal) {
         post(`/transactions/${transactionId}/receipts`, formData, uploadReceiptModal._element)
             .then(response => {
                 if (response.ok) {
-                    table.draw()
+                    table.draw(false)
                     uploadReceiptModal.hide()
                 }
             })
@@ -229,7 +229,7 @@ function addDeleteReceiptListener(table) {
             if (confirm('Are you sure you want to delete this receipt?')) {
                 del(`/transactions/${transactionId}/receipts/${receiptId}`).then(response => {
                     if (response.ok) {
-                        table.draw()
+                        table.draw(false)
                     }
                 })
             }
@@ -285,7 +285,7 @@ function addToggleReviewedListener(table) {
 
             post(`/transactions/${transactionId}/review`).then(response => {
                 if (response.ok) {
-                    table.draw()
+                    table.draw(false)
                 }
             })
         }
