@@ -13,6 +13,8 @@ function createDataTable() {
         serverSide : true,
         ajax       : '/transactions/load',
         orderMulti : false,
+        stateSave: true,
+        order: [[4, 'asc']],
         rowCallback: (row, data) => {
             if (!data.wasReviewed) {
                 row.classList.add('fw-bold')

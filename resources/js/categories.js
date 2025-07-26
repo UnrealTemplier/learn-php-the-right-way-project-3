@@ -11,6 +11,8 @@ function createDataTable() {
         serverSide: true,
         ajax      : '/categories/load',
         orderMulti: false,
+        stateSave: true,
+        order: [[0, 'asc']],
         columns   : [{data: "name"}, {data: "createdAt"}, {data: "updatedAt"}, {
             sortable: false, data: row => `
                     <div class="d-flex flex-row">
