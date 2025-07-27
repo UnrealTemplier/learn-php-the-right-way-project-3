@@ -84,9 +84,12 @@ class TransactionService
 
     public function getRecentTransactions(int $limit): array
     {
-        // TODO: Implement
-
-        return [];
+        return $this->entityManager->getRepository(Transaction::class)
+            ->createQueryBuilder('t')
+            ->orderBy('t.date', 'desc')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getArrayResult();
     }
 
     public function getMonthlySummary(int $year): array
