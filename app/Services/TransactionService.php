@@ -9,6 +9,7 @@ use App\Contracts\UserInterface;
 use App\DataObjects\DataTableQueryParams;
 use App\DataObjects\TransactionData;
 use App\Entity\Transaction;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 
 class TransactionService
@@ -25,14 +26,12 @@ class TransactionService
 
     public function getPaginatedTransactions(DataTableQueryParams $params): Paginator
     {
-        $query = $this->entityManager
-            ->getRepository(Transaction::class)
-            ->createQueryBuilder('t')
-            ->select('t', 'c', 'r')
-            ->leftJoin('t.category', 'c')
-            ->leftJoin('t.receipts', 'r')
-            ->setFirstResult($params->start)
-            ->setMaxResults($params->length);
+        $query = $this->getQueryBuilder()
+                      ->select('t', 'c', 'r')
+                      ->leftJoin('t.category', 'c')
+                      ->leftJoin('t.receipts', 'r')
+                      ->setFirstResult($params->start)
+                      ->setMaxResults($params->length);
 
         $orderBy  = in_array(
             $params->orderBy,
@@ -75,33 +74,58 @@ class TransactionService
         $transaction->setReviewed(!$transaction->wasReviewed());
     }
 
-    public function getTotals(\DateTime $startDate, \DateTime $endDate): array
+    public function getTotals(int $year): array
     {
-        // TODO: Implement
+        /** @var Transaction[] $transactions */
+        $transactions = $this->getQueryBuilderForYear($year)
+                             ->getQuery()
+                             ->getResult();
 
-        return ['net' => 800, 'income' => 3000, 'expense' => 2200];
+        $income  = 0;
+        $expense = 0;
+
+        foreach ($transactions as $transaction) {
+            $amount = $transaction->getAmount();
+            if ($amount > 0) {
+                $income += $amount;
+            } else {
+                $expense += abs($amount);
+            }
+        }
+
+        return ['net' => $income - $expense, 'income' => $income, 'expense' => $expense];
     }
 
     public function getRecentTransactions(int $limit): array
     {
-        return $this->entityManager->getRepository(Transaction::class)
-            ->createQueryBuilder('t')
-            ->orderBy('t.date', 'desc')
-            ->setMaxResults($limit)
-            ->getQuery()
-            ->getArrayResult();
+        return $this->getQueryBuilder()
+                    ->orderBy('t.date', 'desc')
+                    ->setMaxResults($limit)
+                    ->getQuery()
+                    ->getArrayResult();
     }
 
     public function getMonthlySummary(int $year): array
     {
-        // TODO: Implement
+        return $this->getQueryBuilderForYear($year)
+                    ->select('MONTH(t.date) as m')
+                    ->addSelect('SUM(CASE WHEN t.amount > 0 THEN t.amount ELSE 0 END) as income')
+                    ->addSelect('SUM(CASE WHEN t.amount < 0 THEN ABS(t.amount) ELSE 0 END) as expense')
+                    ->groupBy('m')
+                    ->orderBy('m', 'asc')
+                    ->getQuery()
+                    ->getArrayResult();
+    }
 
-        return [
-            ['income' => 1500, 'expense' => 1100, 'm' => '3'],
-            ['income' => 2000, 'expense' => 1800, 'm' => '4'],
-            ['income' => 2500, 'expense' => 1900, 'm' => '5'],
-            ['income' => 2600, 'expense' => 1950, 'm' => '6'],
-            ['income' => 3000, 'expense' => 2200, 'm' => '7'],
-        ];
+    private function getQueryBuilder(): QueryBuilder
+    {
+        return $this->entityManager->getRepository(Transaction::class)->createQueryBuilder('t');
+    }
+
+    private function getQueryBuilderForYear(int $year): QueryBuilder
+    {
+        return $this->getQueryBuilder()
+                    ->where('YEAR(t.date) = :year')
+                    ->setParameter('year', $year);
     }
 }

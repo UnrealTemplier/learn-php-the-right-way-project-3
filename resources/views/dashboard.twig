@@ -17,28 +17,32 @@
         <div class="top-container mb-4 row g-0 rounded-4">
             <div class="col-8 border-end border-3">
                 <div class="row text-center">
-                    <div class="col p-4 pb-0 fs-1">{{ "now" | date('M, Y') }}</div>
+                    <div class="col p-4 pb-0 fs-3">
+                        <label for="yearSelect">Year: </label>
+                        <select id="yearSelect">
+                            <option value="2024">2024</option>
+                            <option value="2025">2025</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="row justify-content-between text-center">
                     <div class="col p-4 pb-0 fs-2">
                         <div>Expense</div>
-                        <div class="fw-bold text-danger">${{ totals.expense | number_format(2) }}</span></div>
+                        <div id="expense" class="fw-bold text-danger"></div>
                     </div>
                     <div class="col p-4 pb-0 fs-2">
                         <div>Income</div>
-                        <div class="fw-bold text-success">${{ totals.income | number_format(2) }}</div>
+                        <div id="income" class="fw-bold text-success"></div>
                     </div>
                     <div class="col p-4 pb-0 fs-2">
                         <div>Net</div>
-                        <div class="fw-bold {{ totals.net >= 0 ? 'text-success' : 'text-danger' }}">
-                            ${{ totals.net | number_format(2) }}
-                        </div>
+                        <div id="net" class="fw-bold"></div>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col p-4">
-                        <div class="fs-1 text-center mb-2">{{ "now" | date('Y') }} Summary</div>
-                        <canvas id="yearToDateChart"></canvas>
+                        <div id="chartLabel" class="fs-1 text-center mb-2"></div>
+                        <canvas id="chart"></canvas>
                     </div>
                 </div>
             </div>
@@ -62,17 +66,15 @@
                 </table>
             </div>
         </div>
-        <div class="categories-container row">
-            {% for spendingCategory in topSpendingCategories %}
-                <div class="col">
-                    <div class="category-card p-4 text-center d-flex align-items-center justify-content-center">
-                        <div>
-                            <h6 class="fs-6 fw-normal">{{ spendingCategory.name }}</h6>
-                            <h1 class="fs-1 text-danger text-opacity-75">${{ spendingCategory.total }}</h1>
-                        </div>
+        <div id="categories-container" class="categories-container row pb-3">
+            <div id="category-item" class="col" hidden="hidden">
+                <div class="category-card p-4 text-center d-flex align-items-center justify-content-center">
+                    <div>
+                        <h6 id="category-item-name" class="fs-6 fw-normal"></h6>
+                        <h1 id="category-item-total" class="fs-1 text-danger text-opacity-75"></h1>
                     </div>
                 </div>
-            {% endfor %}
+            </div>
         </div>
     </div>
 {% endblock %}

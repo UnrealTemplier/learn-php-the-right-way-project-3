@@ -1,11 +1,54 @@
 import "../css/dashboard.scss"
-import Chart   from 'chart.js/auto'
-import { get } from './ajax'
+import {get} from './ajax'
+import Chart from "chart.js/auto";
 
 window.addEventListener('DOMContentLoaded', function () {
-    const ctx = document.getElementById('yearToDateChart')
+    const yearSelect = document.getElementById('yearSelect')
 
-    get('/stats/ytd').then(response => response.json()).then(response => {
+    yearSelect.addEventListener('change', () => update(yearSelect))
+
+    update(yearSelect)
+})
+
+function update(yearSelect) {
+    const year = yearSelect.value
+
+    updateYearStats(year)
+    updateYearChart(year)
+    updateTopSpendingCategories()
+}
+
+function updateYearStats(year) {
+    get(`/stats/${year}`).then(response => response.json()).then(response => {
+        const expenseDiv = document.getElementById('expense')
+        const incomeDiv  = document.getElementById('income')
+        const netDiv     = document.getElementById('net')
+
+        const expenseValue = response.expense
+        const incomeValue  = response.income
+        const netValue     = response.net
+
+        expenseDiv.textContent = '$' + expenseValue
+        incomeDiv.textContent  = '$' + incomeValue
+
+        netDiv.classList.remove('text-success', 'text-danger')
+
+        if (netValue >= 0) {
+            netDiv.classList.add('text-success')
+            netDiv.textContent = '$' + netValue
+        } else {
+            netDiv.classList.add('text-danger')
+            netDiv.textContent = '-$' + Math.abs(netValue)
+        }
+    })
+}
+
+function updateYearChart(year) {
+    document.getElementById('chartLabel').textContent = `${year} Summary`
+
+    get(`/chart/${year}`).then(response => response.json()).then(response => {
+        const chartCanvas = document.getElementById('chart')
+
         let expensesData = Array(12).fill(null)
         let incomeData   = Array(12).fill(null)
 
@@ -14,24 +57,29 @@ window.addEventListener('DOMContentLoaded', function () {
             incomeData[m - 1]   = income
         })
 
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Dec'],
+        const currentChart = Chart.getChart(chartCanvas)
+        if (currentChart) {
+            currentChart.destroy()
+        }
+
+        new Chart(chartCanvas, {
+            type   : 'bar',
+            data   : {
+                labels  : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
                 datasets: [
                     {
-                        label: 'Expense',
-                        data: expensesData,
-                        borderWidth: 1,
+                        label          : 'Expense',
+                        data           : expensesData,
+                        borderWidth    : 1,
                         backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderColor    : 'rgba(255, 99, 132, 1)',
                     },
                     {
-                        label: 'Income',
-                        data: incomeData,
-                        borderWidth: 1,
+                        label          : 'Income',
+                        data           : incomeData,
+                        borderWidth    : 1,
                         backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderColor    : 'rgba(75, 192, 192, 1)',
                     }
                 ]
             },
@@ -44,4 +92,19 @@ window.addEventListener('DOMContentLoaded', function () {
             }
         })
     })
-})
+}
+
+function updateTopSpendingCategories() {
+    const categoriesContainer = document.getElementById('categories-container')
+    const categoryItem        = document.getElementById('category-item')
+
+    get('/top-spending-categories').then(response => response.json()).then(response => {
+        response.forEach(({name, total}) => {
+            const category                                             = categoryItem.cloneNode(true)
+            category.hidden                                            = false
+            category.querySelector('#category-item-name').textContent  = name
+            category.querySelector('#category-item-total').textContent = total
+            categoriesContainer.appendChild(category)
+        })
+    })
+}

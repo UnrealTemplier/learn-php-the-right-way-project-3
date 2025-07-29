@@ -23,7 +23,9 @@ use Slim\Routing\RouteCollectorProxy;
 return function (App $app) {
     $app->group('', function (RouteCollectorProxy $group) {
         $group->get('/', [HomeController::class, 'index'])->setName('home');
-        $group->get('/stats/ytd', [HomeController::class, 'getYearToDateStatistics']);
+        $group->get('/stats/{year}', [HomeController::class, 'getYearStats']);
+        $group->get('/chart/{year}', [HomeController::class, 'getYearChart']);
+        $group->get('/top-spending-categories', [HomeController::class, 'getTopSpendingCategories']);
 
         $group->group('/categories', function (RouteCollectorProxy $categories) {
             $categories->get('', [CategoriesController::class, 'index'])->setName('categories');
