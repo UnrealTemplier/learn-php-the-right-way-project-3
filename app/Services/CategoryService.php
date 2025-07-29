@@ -86,8 +86,9 @@ class CategoryService
     {
         return $this->getQueryBuilder()
             ->select('c.name AS name')
-            ->addSelect('SUM(CASE WHEN t.amount > 0 THEN t.amount ELSE 0 END) as total')
+            ->addSelect('SUM(ABS(t.amount)) as total')
             ->leftJoin(Transaction::class, 't', 'WITH', 't.category = c')
+            ->where('t.amount < 0')
             ->groupBy('c.id')
             ->orderBy('total', 'DESC')
             ->setMaxResults($limit)
