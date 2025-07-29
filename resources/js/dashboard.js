@@ -24,9 +24,9 @@ function updateYearStats(year) {
         const incomeDiv  = document.getElementById('income')
         const netDiv     = document.getElementById('net')
 
-        const expenseValue = response.expense
-        const incomeValue  = response.income
-        const netValue     = response.net
+        const expenseValue = parseFloat(response.expense)
+        const incomeValue  = parseFloat(response.income)
+        const netValue     = parseFloat(response.net)
 
         expenseDiv.textContent = '$' + expenseValue
         incomeDiv.textContent  = '$' + incomeValue

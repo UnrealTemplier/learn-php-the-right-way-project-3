@@ -76,24 +76,12 @@ class TransactionService
 
     public function getTotals(int $year): array
     {
-        /** @var Transaction[] $transactions */
-        $transactions = $this->getQueryBuilderForYear($year)
-                             ->getQuery()
-                             ->getResult();
-
-        $income  = 0;
-        $expense = 0;
-
-        foreach ($transactions as $transaction) {
-            $amount = $transaction->getAmount();
-            if ($amount > 0) {
-                $income += $amount;
-            } else {
-                $expense += abs($amount);
-            }
-        }
-
-        return ['net' => $income - $expense, 'income' => $income, 'expense' => $expense];
+        return $this->getQueryBuilderForYear($year)
+                    ->select('SUM(t.amount) as net')
+                    ->addSelect('SUM(CASE WHEN t.amount > 0 THEN t.amount ELSE 0 END) as income')
+                    ->addSelect('SUM(CASE WHEN t.amount < 0 THEN ABS(t.amount) ELSE 0 END) as expense')
+                    ->getQuery()
+                    ->getOneOrNullResult();
     }
 
     public function getRecentTransactions(int $limit): array
